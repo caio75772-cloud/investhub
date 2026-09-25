@@ -41,20 +41,9 @@ export async function buscarCotacao(
   }
 
   try {
-    const token = import.meta.env.VITE_BRAPI_TOKEN
-
-const resposta = await fetch(
-  `https://brapi.dev/api/v2/stocks/quote?symbols=${encodeURIComponent(
-    tickerNormalizado,
-  )}`,
-  {
-    headers: token
-      ? {
-          Authorization: `Bearer ${token}`,
-        }
-      : {},
-  },
-)
+  const resposta = await fetch(
+    `/api/cotacoes?ticker=${encodeURIComponent(tickerNormalizado)}`
+  )
 
     if (!resposta.ok) {
       return null
