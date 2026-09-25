@@ -1221,3 +1221,48 @@ button {
   font-size: 10px;
   color: #667b90;
 }
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 72px;
+    min-width: 72px;
+    padding: 18px 8px;
+  }
+
+  .content {
+    flex: 1;
+    min-width: 0;
+    padding: 24px 16px 40px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .brand {
+    justify-content: center;
+  }
+
+  .brand span,
+  .sidebar .nav-label,
+  .sidebar .menu-text {
+    display: none;
+  }
+
+  .stats-grid {
+  grid-template-columns: 1fr;
+}
+
+.stat-card {
+  width: 100%;
+  min-width: 0;
+}
+  .app {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
