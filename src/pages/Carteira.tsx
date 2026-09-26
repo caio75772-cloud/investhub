@@ -795,6 +795,8 @@ const rentabilidadeAtivo =
   </div>
 </div>
 
+<div className="position-actions">
+
 <button
   className="position-history"
   onClick={() => setTickerMovimentacoes(posicao.ticker)}
@@ -817,6 +819,7 @@ const rentabilidadeAtivo =
 >
   <Trash2 size={16} />
 </button>
+</div>
                     </div>
                   )
                 })}
