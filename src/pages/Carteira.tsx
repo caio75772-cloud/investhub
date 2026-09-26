@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import {
   Plus,
@@ -64,6 +64,10 @@ const [tickerMovimentacoes, setTickerMovimentacoes] =
 >({})
 const [cotacoesCarregadas, setCotacoesCarregadas] =
   useState(false)
+  const [atualizandoCotacoes, setAtualizandoCotacoes] =
+  useState(false)
+const [ultimaAtualizacao, setUltimaAtualizacao] =
+  useState<Date | null>(null)
   const [tipoNovaMovimentacao, setTipoNovaMovimentacao] =
   useState<TipoMovimentacao | null>(null)
 
@@ -114,29 +118,44 @@ useEffect(() => {
 
   return () => clearTimeout(timer)
 }, [busca])
-useEffect(() => {
-  async function carregarCotacoes() {
+const carregarCotacoes = useCallback(
+  async (forcarAtualizacao = false) => {
     setCotacoesCarregadas(false)
+
+    if (forcarAtualizacao) {
+      setAtualizandoCotacoes(true)
+    }
 
     if (posicoes.length === 0) {
       setCotacoes({})
       setCotacoesCarregadas(true)
+      setAtualizandoCotacoes(false)
       return
     }
 
-    const tickers = posicoes.map(
-      (posicao) => posicao.ticker,
-    )
+    try {
+      const tickers = posicoes.map(
+        (posicao) => posicao.ticker,
+      )
 
-    const novasCotacoes =
-      await buscarCotacoes(tickers)
+      const novasCotacoes = await buscarCotacoes(
+        tickers,
+        forcarAtualizacao,
+      )
 
-    setCotacoes(novasCotacoes)
-    setCotacoesCarregadas(true)
-  }
+      setCotacoes(novasCotacoes)
+      setUltimaAtualizacao(new Date())
+    } finally {
+      setCotacoesCarregadas(true)
+      setAtualizandoCotacoes(false)
+    }
+  },
+  [posicoes],
+)
 
-  carregarCotacoes()
-}, [posicoes])
+useEffect(() => {
+  void carregarCotacoes()
+}, [carregarCotacoes])
 
 console.log('COTAÇÕES:', cotacoes)
 
@@ -540,13 +559,48 @@ const resultadoRealizado = posicaoMovimentacoes
             </p>
           </div>
 
-          <button
-            className="primary-button"
-            onClick={abrirModal}
-          >
-            <Plus size={17} />
-            Adicionar ativo
-          </button>
+          <div
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  }}
+>
+  <span
+    style={{
+      fontSize: '12px',
+      color: '#71869b',
+    }}
+  >
+    Última atualização:{' '}
+    {ultimaAtualizacao
+      ? ultimaAtualizacao.toLocaleTimeString('pt-BR')
+      : '--:--:--'}
+  </span>
+
+  <button
+    type="button"
+    className="primary-button"
+    onClick={() => void carregarCotacoes(true)}
+    disabled={
+      atualizandoCotacoes ||
+      posicoes.length === 0
+    }
+  >
+    {atualizandoCotacoes
+      ? 'Atualizando...'
+      : '↻ Atualizar cotações'}
+  </button>
+
+  <button
+    type="button"
+    className="primary-button"
+    onClick={abrirModal}
+  >
+    <Plus size={17} />
+    Adicionar ativo
+  </button>
+</div>
         </header>
 
         <section className="portfolio-summary-grid">

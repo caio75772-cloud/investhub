@@ -28,15 +28,17 @@ const TEMPO_CACHE = 60 * 1000
 
 export async function buscarCotacao(
   ticker: string,
+  forcarAtualizacao = false,
 ): Promise<Cotacao | null> {
   const tickerNormalizado = ticker.toUpperCase()
 
   const cache = CACHE_COTACOES.get(tickerNormalizado)
 
   if (
-    cache &&
-    Date.now() - cache.timestamp < TEMPO_CACHE
-  ) {
+  !forcarAtualizacao &&
+  cache &&
+  Date.now() - cache.timestamp < TEMPO_CACHE
+) {
     return cache.cotacao
   }
 
@@ -100,12 +102,16 @@ export async function buscarCotacao(
 
 export async function buscarCotacoes(
   tickers: string[],
+  forcarAtualizacao = false,
 ): Promise<Record<string, Cotacao>> {
   const resultado: Record<string, Cotacao> = {}
 
   await Promise.all(
     tickers.map(async (ticker) => {
-      const cotacao = await buscarCotacao(ticker)
+      const cotacao = await buscarCotacao(
+        ticker,
+        forcarAtualizacao,
+      )
 
       if (cotacao) {
         resultado[ticker.toUpperCase()] = cotacao
