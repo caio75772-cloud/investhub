@@ -26,79 +26,6 @@ const CACHE_COTACOES = new Map<
 
 const TEMPO_CACHE = 60 * 1000
 
-export async function buscarCotacao(
-  ticker: string,
-  forcarAtualizacao = false,
-): Promise<Cotacao | null> {
-  const tickerNormalizado = ticker.toUpperCase()
-
-  const cache = CACHE_COTACOES.get(tickerNormalizado)
-
-  if (
-  !forcarAtualizacao &&
-  cache &&
-  Date.now() - cache.timestamp < TEMPO_CACHE
-) {
-    return cache.cotacao
-  }
-
-  try {
-  let resposta: Response
-
-  if (import.meta.env.DEV) {
-    const token = import.meta.env.VITE_BRAPI_TOKEN
-
-    resposta = await fetch(
-      `https://brapi.dev/api/v2/stocks/quote?symbols=${encodeURIComponent(
-        tickerNormalizado
-      )}`,
-      {
-        headers: token
-          ? {
-              Authorization: `Bearer ${token}`,
-            }
-          : {},
-      }
-    )
-  } else {
-    resposta = await fetch(
-      `/api/cotacoes?ticker=${encodeURIComponent(tickerNormalizado)}`
-    )
-  }
-
-    if (!resposta.ok) {
-      return null
-    }
-
-    const dados = await resposta.json()
-
-    const ativo = dados.results?.[0]?.data
-
-    if (ativo?.regularMarketPrice == null) {
-      return null
-    }
-
-    const cotacao: Cotacao = {
-      preco: ativo.regularMarketPrice,
-      variacao:
-        ativo.regularMarketChangePercent ?? 0,
-    }
-
-    CACHE_COTACOES.set(tickerNormalizado, {
-      cotacao,
-      timestamp: Date.now(),
-    })
-
-    return cotacao
-  } catch (erro) {
-    console.error(
-      `Erro ao buscar cotação de ${tickerNormalizado}:`,
-      erro,
-    )
-
-    return null
-  }
-}
 
 export async function buscarCotacoes(
   tickers: string[],
@@ -106,20 +33,92 @@ export async function buscarCotacoes(
 ): Promise<Record<string, Cotacao>> {
   const resultado: Record<string, Cotacao> = {}
 
-  await Promise.all(
-    tickers.map(async (ticker) => {
-      const cotacao = await buscarCotacao(
-        ticker,
-        forcarAtualizacao,
+  const tickersNormalizados = [
+    ...new Set(
+      tickers.map((ticker) =>
+        ticker.trim().toUpperCase(),
+      ),
+    ),
+  ]
+
+  const tickersParaBuscar =
+    tickersNormalizados.filter((ticker) => {
+      const cache = CACHE_COTACOES.get(ticker)
+
+      if (
+        !forcarAtualizacao &&
+        cache &&
+        Date.now() - cache.timestamp < TEMPO_CACHE
+      ) {
+        resultado[ticker] = cache.cotacao
+        return false
+      }
+
+      return true
+    })
+
+  if (tickersParaBuscar.length === 0) {
+    return resultado
+  }
+
+  try {
+    const resposta = await fetch(
+      `/api/cotacoes?tickers=${encodeURIComponent(
+        tickersParaBuscar.join(','),
+      )}`,
+    )
+
+    if (!resposta.ok) {
+      console.error(
+        'Erro ao buscar cotações:',
+        resposta.status,
       )
 
-      if (cotacao) {
-        resultado[ticker.toUpperCase()] = cotacao
-      }
-    }),
-  )
+      return resultado
+    }
 
-  return resultado
+    const dados = await resposta.json()
+
+    for (const item of dados.results ?? []) {
+      const ticker =
+        item.requestedSymbol ??
+        item.symbol
+
+      const ativo = item.data
+
+      if (
+        !ticker ||
+        ativo?.regularMarketPrice == null
+      ) {
+        continue
+      }
+
+      const cotacao: Cotacao = {
+        preco: ativo.regularMarketPrice,
+        variacao:
+          ativo.regularMarketChangePercent ?? 0,
+      }
+
+      resultado[ticker.toUpperCase()] = cotacao
+
+      CACHE_COTACOES.set(
+        ticker.toUpperCase(),
+        {
+          cotacao,
+          timestamp: Date.now(),
+        },
+      )
+    }
+
+    return resultado
+  } catch (erro) {
+    console.error(
+      'Erro ao buscar cotações:',
+      erro,
+    )
+
+    return resultado
+  }
 }
 
 export async function buscarHistoricoAtivo(
@@ -128,9 +127,9 @@ export async function buscarHistoricoAtivo(
 ): Promise<SerieHistorica> {
   try {
     const resposta = await fetch(
-      `https://brapi.dev/api/v2/stocks/historical?symbols=${encodeURIComponent(
+      `/api/historico?ticker=${encodeURIComponent(
         ticker,
-      )}&range=${periodo}&interval=1d&sortOrder=asc`,
+      )}&periodo=${encodeURIComponent(periodo)}`,
     )
 
     if (!resposta.ok) {
@@ -145,8 +144,8 @@ export async function buscarHistoricoAtivo(
     return {
       ticker,
       pontos:
-        dados.results?.[0]?.data?.historicalDataPrice ??
-        [],
+        dados.results?.[0]?.data
+          ?.historicalDataPrice ?? [],
     }
   } catch (erro) {
     console.error(

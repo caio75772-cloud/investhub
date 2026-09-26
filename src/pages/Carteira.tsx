@@ -157,6 +157,21 @@ useEffect(() => {
   void carregarCotacoes()
 }, [carregarCotacoes])
 
+useEffect(() => {
+  const intervalo = window.setInterval(() => {
+    if (
+      document.visibilityState === 'visible' &&
+      posicoes.length > 0
+    ) {
+      void carregarCotacoes(true)
+    }
+  }, 5 * 60 * 1000)
+
+  return () => {
+    window.clearInterval(intervalo)
+  }
+}, [carregarCotacoes, posicoes.length])
+
 console.log('COTAÇÕES:', cotacoes)
 
   

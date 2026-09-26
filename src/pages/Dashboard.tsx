@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-
+import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   TrendingUp,
   CircleDollarSign,
@@ -27,6 +27,17 @@ import {
 } from '../services/calculos'
 
 function Dashboard() {
+  const navigate = useNavigate()
+
+const [benchmarkSelecionado, setBenchmarkSelecionado] =
+  useState('IBOV')
+
+  const [historicoBenchmark, setHistoricoBenchmark] =
+  useState<SerieHistorica | null>(null)
+
+const [carregandoBenchmark, setCarregandoBenchmark] =
+  useState(false)
+
 const [posicoes, setPosicoes] = useState<Posicao[]>([])
 
 const [cotacoes, setCotacoes] = useState<
@@ -42,8 +53,8 @@ const [carregandoHistorico, setCarregandoHistorico] = useState(false)
 useEffect(() => {
   setPosicoes(carregarCarteira())
 }, [])
-useEffect(() => {
-  async function carregarCotacoes() {
+const carregarCotacoes = useCallback(
+  async (forcarAtualizacao = false) => {
     setCotacoesCarregadas(false)
 
     if (posicoes.length === 0) {
@@ -52,19 +63,42 @@ useEffect(() => {
       return
     }
 
-    const tickers = posicoes.map(
-      (posicao) => posicao.ticker,
-    )
+    try {
+      const tickers = posicoes.map(
+        (posicao) => posicao.ticker,
+      )
 
-    const novasCotacoes =
-      await buscarCotacoes(tickers)
+      const novasCotacoes = await buscarCotacoes(
+        tickers,
+        forcarAtualizacao,
+      )
 
-    setCotacoes(novasCotacoes)
-    setCotacoesCarregadas(true)
+      setCotacoes(novasCotacoes)
+    } finally {
+      setCotacoesCarregadas(true)
+    }
+  },
+  [posicoes],
+)
+
+useEffect(() => {
+  void carregarCotacoes()
+}, [carregarCotacoes])
+
+useEffect(() => {
+  const intervalo = window.setInterval(() => {
+    if (
+      document.visibilityState === 'visible' &&
+      posicoes.length > 0
+    ) {
+      void carregarCotacoes(true)
+    }
+  }, 5 * 60 * 1000)
+
+  return () => {
+    window.clearInterval(intervalo)
   }
-
-  carregarCotacoes()
-}, [posicoes])
+}, [carregarCotacoes, posicoes.length])
 
 useEffect(() => {
   async function carregarHistorico() {
@@ -103,6 +137,43 @@ useEffect(() => {
 
   carregarHistorico()
 }, [posicoes, periodoGrafico])
+
+useEffect(() => {
+  async function carregarBenchmark() {
+    if (benchmarkSelecionado !== 'IBOV') {
+      setHistoricoBenchmark(null)
+      return
+    }
+
+    setCarregandoBenchmark(true)
+
+    try {
+      const periodo =
+        periodoGrafico === '12mo'
+          ? '1y'
+          : periodoGrafico
+
+      const serie = await buscarHistoricoAtivo(
+        '^BVSP',
+        periodo as '1mo' | '3mo' | '6mo' | '1y',
+      )
+
+      setHistoricoBenchmark(serie)
+    } catch (erro) {
+      console.error(
+        'Erro ao carregar benchmark:',
+        erro,
+      )
+
+      setHistoricoBenchmark(null)
+    } finally {
+      setCarregandoBenchmark(false)
+    }
+  }
+
+  void carregarBenchmark()
+}, [benchmarkSelecionado, periodoGrafico])
+
 const valorInvestidoTotal =
   calcularValorInvestido(posicoes)
 
@@ -240,6 +311,83 @@ valoresPorData.set(
     }))
 })()
 
+const rentabilidadePeriodoCarteira =
+  dadosGrafico.length >= 2 &&
+  dadosGrafico[0].valor > 0
+    ? ((dadosGrafico[dadosGrafico.length - 1].valor /
+        dadosGrafico[0].valor) -
+        1) *
+      100
+    : null
+
+const dataInicioComparacao =
+  dadosGrafico.length > 0
+    ? new Date(dadosGrafico[0].data * 1000)
+        .toISOString()
+        .slice(0, 10)
+    : null
+
+const pontosBenchmarkComparaveis =
+  historicoBenchmark?.pontos.filter((ponto) => {
+    const preco =
+      ponto.adjustedClose ?? ponto.close
+
+    if (!Number.isFinite(preco)) {
+      return false
+    }
+
+    if (!dataInicioComparacao) {
+      return true
+    }
+
+    const dataPonto = new Date(
+      ponto.date * 1000,
+    )
+      .toISOString()
+      .slice(0, 10)
+
+    return dataPonto >= dataInicioComparacao
+  }) ?? []
+
+const primeiroPontoBenchmark =
+  pontosBenchmarkComparaveis[0]
+
+const ultimoPontoBenchmark =
+  pontosBenchmarkComparaveis[
+    pontosBenchmarkComparaveis.length - 1
+  ]
+
+const precoInicialBenchmark =
+  primeiroPontoBenchmark
+    ? primeiroPontoBenchmark.adjustedClose ??
+      primeiroPontoBenchmark.close
+    : null
+
+const precoFinalBenchmark =
+  ultimoPontoBenchmark
+    ? ultimoPontoBenchmark.adjustedClose ??
+      ultimoPontoBenchmark.close
+    : null
+
+const rentabilidadeBenchmark =
+  precoInicialBenchmark != null &&
+  precoFinalBenchmark != null &&
+  precoInicialBenchmark > 0
+    ? ((precoFinalBenchmark /
+        precoInicialBenchmark) -
+        1) *
+      100
+    : null
+
+const excessoBenchmark =
+  rentabilidadePeriodoCarteira != null &&
+  rentabilidadeBenchmark != null
+    ? ((1 + rentabilidadePeriodoCarteira / 100) /
+        (1 + rentabilidadeBenchmark / 100) -
+        1) *
+      100
+    : null
+
 const larguraGrafico = 820
 const alturaGrafico = 260
 const margemGrafico = 18
@@ -291,7 +439,10 @@ const pontosGrafico = dadosGrafico
           </p>
         </div>
 
-        <button className="primary-button">
+        <button
+  className="primary-button"
+  onClick={() => navigate('/carteira')}
+>
           Ver carteira
           <ArrowUpRight size={17} />
         </button>
@@ -376,6 +527,84 @@ const pontosGrafico = dadosGrafico
             Recebidos no período
           </span>
         </article>
+<article className="stat-card">
+  <div className="stat-top">
+    <div>
+      <p>Excesso vs benchmark</p>
+      <h2
+  className={
+    excessoBenchmark == null
+      ? ''
+      : excessoBenchmark >= 0
+        ? 'positive-text'
+        : 'negative-text'
+  }
+>
+  {carregandoBenchmark
+    ? 'Carregando...'
+    : excessoBenchmark == null
+      ? '—'
+      : `${excessoBenchmark >= 0 ? '+' : ''}${excessoBenchmark
+          .toFixed(2)
+          .replace('.', ',')}%`}
+</h2>
+    </div>
+
+    <div className="stat-icon">
+      <TrendingUp size={21} />
+    </div>
+  </div>
+
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+    }}
+  >
+    <span className="neutral-text">
+      vs.
+    </span>
+
+    <select
+      value={benchmarkSelecionado}
+      onChange={(event) =>
+        setBenchmarkSelecionado(event.target.value)
+      }
+      style={{
+        background: 'transparent',
+        color: '#7f94aa',
+        border: '1px solid #243547',
+        borderRadius: '6px',
+        padding: '4px 8px',
+        fontSize: '11px',
+        outline: 'none',
+      }}
+    >
+      <option value="IBOV">IBOV</option>
+      <option value="CDI">CDI</option>
+      <option value="SP500">S&P 500</option>
+      <option value="NASDAQ">NASDAQ</option>
+    </select>
+  </div>
+</article>
+<article className="stat-card">
+  <div className="stat-top">
+    <div>
+      <p>Ativos</p>
+      <h2>{posicoes.length}</h2>
+    </div>
+
+    <div className="stat-icon">
+      <Wallet size={21} />
+    </div>
+  </div>
+
+  <span className="neutral-text">
+    Ativos na carteira
+  </span>
+</article>
+
       </section>
 
       <section className="dashboard-grid">
@@ -511,18 +740,40 @@ const pontosGrafico = dadosGrafico
     cotacoes,
   )
 
+  const valorAtualPosicao =
+  posicao.quantidade *
+  (cotacoes[posicao.ticker]?.preco ??
+    posicao.precoMedio)
+
       return (
         <div
           className="allocation-item"
           key={posicao.ticker}
         >
           <div className="allocation-info">
-            <strong>{posicao.ticker}</strong>
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '4px',
+    }}
+  >
+    <strong>{posicao.ticker}</strong>
 
-            <span>
-              {percentual.toFixed(1).replace('.', ',')}%
-            </span>
-          </div>
+    <span
+      style={{
+        fontSize: '11px',
+        color: '#71869b',
+      }}
+    >
+      {formatarReal(valorAtualPosicao)}
+    </span>
+  </div>
+
+  <span>
+    {percentual.toFixed(1).replace('.', ',')}%
+  </span>
+</div>
 
           <div className="allocation-bar">
             <div
