@@ -442,8 +442,9 @@ button {
 }
 
 .stats-grid .stat-card h2 {
-  font-size: 22px;
-  line-height: 1.1;
+  font-size: 21px;
+  line-height: 1.15;
+  white-space: nowrap;
 }
 
 .stats-grid .stat-card p {
