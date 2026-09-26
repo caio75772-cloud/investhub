@@ -6,6 +6,7 @@ import {
   Wallet,
   ArrowUpRight,
   ChartNoAxesCombined,
+  ChevronDown,
 } from 'lucide-react'
 import {
   buscarCotacoes,
@@ -32,11 +33,17 @@ function Dashboard() {
 const [benchmarkSelecionado, setBenchmarkSelecionado] =
   useState('IBOV')
 
+  const [benchmarkAberto, setBenchmarkAberto] =
+  useState(false)
+
   const [historicoBenchmark, setHistoricoBenchmark] =
   useState<SerieHistorica | null>(null)
 
 const [carregandoBenchmark, setCarregandoBenchmark] =
   useState(false)
+
+  const [rentabilidadeCdi, setRentabilidadeCdi] =
+  useState<number | null>(null)
 
 const [posicoes, setPosicoes] = useState<Posicao[]>([])
 
@@ -48,6 +55,10 @@ const [cotacoesCarregadas, setCotacoesCarregadas] =
   useState(false)
 
 const [periodoGrafico, setPeriodoGrafico] = useState('12mo')
+
+const [periodoAberto, setPeriodoAberto] =
+  useState(false)
+
 const [historico, setHistorico] = useState<SerieHistorica[]>([])
 const [carregandoHistorico, setCarregandoHistorico] = useState(false)
 useEffect(() => {
@@ -140,21 +151,93 @@ useEffect(() => {
 
 useEffect(() => {
   async function carregarBenchmark() {
-    if (benchmarkSelecionado !== 'IBOV') {
-      setHistoricoBenchmark(null)
-      return
-    }
-
     setCarregandoBenchmark(true)
 
     try {
+      if (benchmarkSelecionado === 'CDI') {
+        setHistoricoBenchmark(null)
+
+        const hoje = new Date()
+        const inicio = new Date(hoje)
+
+        if (periodoGrafico === '1mo') {
+          inicio.setMonth(inicio.getMonth() - 1)
+        } else if (periodoGrafico === '3mo') {
+          inicio.setMonth(inicio.getMonth() - 3)
+        } else if (periodoGrafico === '6mo') {
+          inicio.setMonth(inicio.getMonth() - 6)
+        } else {
+          inicio.setFullYear(inicio.getFullYear() - 1)
+        }
+
+        const formatarData = (data: Date) =>
+          [
+            data.getFullYear(),
+            String(data.getMonth() + 1).padStart(2, '0'),
+            String(data.getDate()).padStart(2, '0'),
+          ].join('-')
+
+        const resposta = await fetch(
+          `/api/cdi?inicio=${formatarData(
+            inicio,
+          )}&fim=${formatarData(hoje)}`,
+        )
+
+        if (!resposta.ok) {
+          setRentabilidadeCdi(null)
+          return
+        }
+
+        const dados = await resposta.json()
+
+        const acumulado = dados.reduce(
+          (
+            fator: number,
+            item: { valor: string },
+          ) => {
+            const taxaDiaria =
+              Number(item.valor.replace(',', '.')) / 100
+
+            return fator * (1 + taxaDiaria)
+          },
+          1,
+        )
+
+        setRentabilidadeCdi(
+          (acumulado - 1) * 100,
+        )
+
+        return
+      }
+
+      setRentabilidadeCdi(null)
+
+      let tickerBenchmark: string | null = null
+
+      if (benchmarkSelecionado === 'IBOV') {
+        tickerBenchmark = '^BVSP'
+      }
+
+      if (benchmarkSelecionado === 'SP500') {
+        tickerBenchmark = 'IVVB11'
+      }
+
+      if (benchmarkSelecionado === 'NASDAQ') {
+        tickerBenchmark = 'NASD11'
+      }
+
+      if (!tickerBenchmark) {
+        setHistoricoBenchmark(null)
+        return
+      }
+
       const periodo =
         periodoGrafico === '12mo'
           ? '1y'
           : periodoGrafico
 
       const serie = await buscarHistoricoAtivo(
-        '^BVSP',
+        tickerBenchmark,
         periodo as '1mo' | '3mo' | '6mo' | '1y',
       )
 
@@ -166,6 +249,7 @@ useEffect(() => {
       )
 
       setHistoricoBenchmark(null)
+      setRentabilidadeCdi(null)
     } finally {
       setCarregandoBenchmark(false)
     }
@@ -370,14 +454,16 @@ const precoFinalBenchmark =
     : null
 
 const rentabilidadeBenchmark =
-  precoInicialBenchmark != null &&
-  precoFinalBenchmark != null &&
-  precoInicialBenchmark > 0
-    ? ((precoFinalBenchmark /
-        precoInicialBenchmark) -
-        1) *
-      100
-    : null
+  benchmarkSelecionado === 'CDI'
+    ? rentabilidadeCdi
+    : precoInicialBenchmark != null &&
+        precoFinalBenchmark != null &&
+        precoInicialBenchmark > 0
+      ? ((precoFinalBenchmark /
+          precoInicialBenchmark) -
+          1) *
+        100
+      : null
 
 const excessoBenchmark =
   rentabilidadePeriodoCarteira != null &&
@@ -566,26 +652,67 @@ const pontosGrafico = dadosGrafico
       vs.
     </span>
 
-    <select
-      value={benchmarkSelecionado}
-      onChange={(event) =>
-        setBenchmarkSelecionado(event.target.value)
+    <div className="benchmark-dropdown">
+  <button
+    type="button"
+    className="benchmark-trigger"
+    onClick={() =>
+      setBenchmarkAberto((aberto) => !aberto)
+    }
+  >
+    <span>
+      {benchmarkSelecionado === 'IBOV'
+        ? 'IBOV'
+        : benchmarkSelecionado === 'CDI'
+          ? 'CDI'
+          : benchmarkSelecionado === 'SP500'
+            ? 'S&P 500 (BRL)'
+            : 'Nasdaq 100 (BRL)'}
+    </span>
+
+    <ChevronDown
+      size={14}
+      className={
+        benchmarkAberto
+          ? 'benchmark-chevron open'
+          : 'benchmark-chevron'
       }
-      style={{
-        background: 'transparent',
-        color: '#7f94aa',
-        border: '1px solid #243547',
-        borderRadius: '6px',
-        padding: '4px 8px',
-        fontSize: '11px',
-        outline: 'none',
-      }}
-    >
-      <option value="IBOV">IBOV</option>
-      <option value="CDI">CDI</option>
-      <option value="SP500">S&P 500</option>
-      <option value="NASDAQ">NASDAQ</option>
-    </select>
+    />
+  </button>
+
+  {benchmarkAberto && (
+    <div className="benchmark-menu">
+      {[
+        ['IBOV', 'IBOV'],
+        ['CDI', 'CDI'],
+        ['SP500', 'S&P 500 (BRL)'],
+        ['NASDAQ', 'Nasdaq 100 (BRL)'],
+      ].map(([valor, nome]) => (
+        <button
+          type="button"
+          key={valor}
+          className={
+            benchmarkSelecionado === valor
+              ? 'benchmark-option selected'
+              : 'benchmark-option'
+          }
+          onClick={() => {
+            setBenchmarkSelecionado(valor)
+            setBenchmarkAberto(false)
+          }}
+        >
+          <span>{nome}</span>
+
+          {benchmarkSelecionado === valor && (
+            <span className="benchmark-check">
+              ✓
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  )}
+</div>
   </div>
 </article>
 <article className="stat-card">
@@ -610,21 +737,74 @@ const pontosGrafico = dadosGrafico
       <section className="dashboard-grid">
         <article className="panel main-panel">
           <div className="panel-header">
-            <div>
-              <p className="panel-label">CARTEIRA</p>
-              <h3>Evolução patrimonial</h3>
-            </div>
+  <div>
+    <p className="panel-label">CARTEIRA</p>
+    <h3>Evolução patrimonial</h3>
+  </div>
 
-            <select
-  value={periodoGrafico}
-  onChange={(event) => setPeriodoGrafico(event.target.value)}
->
-  <option value="12mo">12 meses</option>
-  <option value="6mo">6 meses</option>
-  <option value="3mo">3 meses</option>
-  <option value="1mo">1 mês</option>
-</select>
-          </div>
+  <div className="benchmark-dropdown">
+    <button
+      type="button"
+      className="benchmark-trigger"
+      onClick={() =>
+        setPeriodoAberto((aberto) => !aberto)
+      }
+    >
+      <span>
+        {periodoGrafico === '12mo'
+          ? '12 meses'
+          : periodoGrafico === '6mo'
+            ? '6 meses'
+            : periodoGrafico === '3mo'
+              ? '3 meses'
+              : '1 mês'}
+      </span>
+
+      <ChevronDown
+        size={14}
+        className={
+          periodoAberto
+            ? 'benchmark-chevron open'
+            : 'benchmark-chevron'
+        }
+      />
+    </button>
+
+    {periodoAberto && (
+      <div className="benchmark-menu">
+        {[
+          ['12mo', '12 meses'],
+          ['6mo', '6 meses'],
+          ['3mo', '3 meses'],
+          ['1mo', '1 mês'],
+        ].map(([valor, nome]) => (
+          <button
+            type="button"
+            key={valor}
+            className={
+              periodoGrafico === valor
+                ? 'benchmark-option selected'
+                : 'benchmark-option'
+            }
+            onClick={() => {
+              setPeriodoGrafico(valor)
+              setPeriodoAberto(false)
+            }}
+          >
+            <span>{nome}</span>
+
+            {periodoGrafico === valor && (
+              <span className="benchmark-check">
+                ✓
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
+  
 
           {carregandoHistorico ? (
   <div className="empty-chart">
