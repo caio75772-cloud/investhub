@@ -1288,6 +1288,20 @@ button {
   width: 100%;
   min-width: 0;
 }
+.position-main {
+  width: 100%;
+  min-width: 0;
+}
+
+.position-data {
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 14px;
+}
+
+.position-data > div {
+  min-width: 0;
+}
   .app {
     width: 100%;
     min-height: 100vh;
