@@ -368,6 +368,16 @@ valoresPorData.set(
 )
     })
   })
+
+  const historicoCompleto = posicoes.every(
+  (posicao) =>
+    historico.some(
+      (serie) =>
+        serie.ticker === posicao.ticker &&
+        serie.pontos.length > 0,
+    ),
+)
+
 const valorAtualCarteira = posicoes.reduce(
   (total, posicao) => {
     const precoAtual =
@@ -378,7 +388,10 @@ const valorAtualCarteira = posicoes.reduce(
   0,
 )
 
-if (valorAtualCarteira > 0) {
+if (
+  valorAtualCarteira > 0 &&
+  historicoCompleto
+) {
   const agora = Math.floor(Date.now() / 1000)
 const hojeNormalizado = normalizarData(agora)
 
