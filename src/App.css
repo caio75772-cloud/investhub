@@ -417,6 +417,10 @@ overflow: hidden;
 }
 
 @media (max-width: 700px) {
+  .stats-grid > .stat-card:first-child h2 {
+  font-size: 19px;
+  letter-spacing: -0.4px;
+}
   .sidebar {
     width: 78px;
     padding: 24px 10px;
