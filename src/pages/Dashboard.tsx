@@ -454,7 +454,18 @@ const rentabilidadePeriodoCarteira = (() => {
 
   posicoes.forEach((posicao) => {
     const movimentacoes =
-      posicao.movimentacoes ?? []
+  posicao.movimentacoes &&
+  posicao.movimentacoes.length > 0
+    ? posicao.movimentacoes
+    : [
+        {
+          id: `inicial-${posicao.ticker}`,
+          tipo: 'compra' as TipoMovimentacao,
+          quantidade: posicao.quantidade,
+          preco: posicao.precoMedio,
+          data: posicao.data,
+        },
+      ]
 
     movimentacoes.forEach((movimentacao) => {
       const dataMovimentacao = Math.floor(
