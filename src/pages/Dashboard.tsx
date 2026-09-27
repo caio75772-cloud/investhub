@@ -126,16 +126,22 @@ useEffect(() => {
           ? '1y'
           : periodoGrafico
 
-      const novasSeries = await Promise.all(
-        posicoes.map((posicao) =>
-          buscarHistoricoAtivo(
-            posicao.ticker,
-            periodo as '1mo' | '3mo' | '6mo' | '1y',
-          ),
-        ),
-      )
+      const novasSeries: SerieHistorica[] = []
 
-      setHistorico(novasSeries)
+for (const posicao of posicoes) {
+  const serie = await buscarHistoricoAtivo(
+    posicao.ticker,
+    periodo as '1mo' | '3mo' | '6mo' | '1y',
+  )
+
+  novasSeries.push(serie)
+
+  await new Promise((resolve) =>
+    setTimeout(resolve, 500),
+  )
+}
+
+setHistorico(novasSeries)
     } catch (erro) {
       console.error(
         'Erro ao carregar histórico:',
@@ -377,6 +383,21 @@ valoresPorData.set(
         serie.pontos.length > 0,
     ),
 )
+
+const ativosSemHistorico = posicoes.filter((posicao) => {
+  const serie = historico.find(
+    (item) => item.ticker === posicao.ticker,
+  )
+
+  return !serie || serie.pontos.length === 0
+})
+
+if (ativosSemHistorico.length > 0) {
+  console.log(
+    'ATIVOS SEM HISTÓRICO:',
+    ativosSemHistorico.map((ativo) => ativo.ticker),
+  )
+}
 
 if (!historicoCompleto) {
   return []
