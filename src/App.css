@@ -211,6 +211,22 @@ button {
   margin-bottom: 16px;
 }
 
+.stats-grid > .stat-card:nth-child(4) {
+  overflow: visible;
+  position: relative;
+  z-index: 20;
+}
+
+.stats-grid .benchmark-dropdown {
+  position: relative;
+  z-index: 30;
+}
+
+.stats-grid .benchmark-menu {
+  z-index: 999;
+  overflow: visible;
+}
+
 .stat-card {
   min-height: 142px;
   padding: 21px;
