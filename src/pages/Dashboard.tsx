@@ -378,6 +378,10 @@ valoresPorData.set(
     ),
 )
 
+if (!historicoCompleto) {
+  return []
+}
+
 const valorAtualCarteira = posicoes.reduce(
   (total, posicao) => {
     const precoAtual =
