@@ -433,14 +433,82 @@ valoresPorData.set(
     }))
 })()
 
-const rentabilidadePeriodoCarteira =
-  dadosGrafico.length >= 2 &&
-  dadosGrafico[0].valor > 0
-    ? ((dadosGrafico[dadosGrafico.length - 1].valor /
-        dadosGrafico[0].valor) -
-        1) *
-      100
-    : null
+const rentabilidadePeriodoCarteira = (() => {
+  if (
+    dadosGrafico.length < 2 ||
+    dadosGrafico[0].valor <= 0
+  ) {
+    return null
+  }
+
+  const inicioPeriodo = dadosGrafico[0].data
+
+  const fimPeriodo =
+    dadosGrafico[dadosGrafico.length - 1].data
+
+  const duracaoPeriodo =
+    Math.max(fimPeriodo - inicioPeriodo, 1)
+
+  let fluxoLiquido = 0
+  let fluxoPonderado = 0
+
+  posicoes.forEach((posicao) => {
+    const movimentacoes =
+      posicao.movimentacoes ?? []
+
+    movimentacoes.forEach((movimentacao) => {
+      const dataMovimentacao = Math.floor(
+        new Date(
+          `${movimentacao.data}T12:00:00Z`,
+        ).getTime() / 1000,
+      )
+
+      if (
+        dataMovimentacao <= inicioPeriodo ||
+        dataMovimentacao > fimPeriodo
+      ) {
+        return
+      }
+
+      const valorMovimentacao =
+        movimentacao.quantidade *
+        movimentacao.preco
+
+      const fluxo =
+        movimentacao.tipo === 'compra'
+          ? valorMovimentacao
+          : -valorMovimentacao
+
+      const peso =
+        (fimPeriodo - dataMovimentacao) /
+        duracaoPeriodo
+
+      fluxoLiquido += fluxo
+      fluxoPonderado += fluxo * peso
+    })
+  })
+
+  const valorInicial =
+    dadosGrafico[0].valor
+
+  const valorFinal =
+    dadosGrafico[dadosGrafico.length - 1].valor
+
+  const baseAjustada =
+    valorInicial + fluxoPonderado
+
+  if (baseAjustada <= 0) {
+    return null
+  }
+
+  return (
+    ((valorFinal -
+      valorInicial -
+      fluxoLiquido) /
+      baseAjustada) *
+    100
+  )
+})()
 
 const dataInicioComparacao =
   dadosGrafico.length > 0
