@@ -568,7 +568,7 @@ const pontosGrafico = dadosGrafico
   {!cotacoesCarregadas
     ? 'Carregando...'
     : cotacoesIncompletas
-      ? 'Dados parciais'
+  ? '—'
       : `${rentabilidade >= 0 ? '+' : ''}${rentabilidade
           .toFixed(2)
           .replace('.', ',')}%`}
