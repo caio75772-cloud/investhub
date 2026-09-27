@@ -221,6 +221,10 @@ button {
     rgba(16, 25, 36, 0.96),
     rgba(10, 16, 23, 0.96)
   );
+
+  min-width: 0;
+overflow: hidden;
+
 }
 
 .stat-top {
@@ -228,6 +232,24 @@ button {
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
+}
+
+.stat-top > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.stat-card h2 {
+  max-width: 100%;
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.neutral-text {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .stat-card p {
