@@ -426,7 +426,8 @@ const valorAtualCarteira = posicoes.reduce(
 
 if (
   valorAtualCarteira > 0 &&
-  historicoCompleto
+  historicoCompleto &&
+  !cotacoesIncompletas
 ) {
   const agora = Math.floor(Date.now() / 1000)
 const hojeNormalizado = normalizarData(agora)
