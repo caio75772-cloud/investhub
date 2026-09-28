@@ -329,6 +329,23 @@ overflow: hidden;
   gap: 20px;
 }
 
+.period-return {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.period-return span {
+  font-size: 11px;
+  color: #71869b;
+}
+
+.period-return strong {
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .panel-header h3 {
   margin: 0;
   font-size: 16px;

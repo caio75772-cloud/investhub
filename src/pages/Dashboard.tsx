@@ -776,7 +776,7 @@ const pontosGrafico = dadosGrafico
     ? 'Carregando...'
     : cotacoesIncompletas
       ? 'Dados parciais'
-      : `Resultado: ${resultadoNaoRealizado >= 0 ? '+' : ''}${formatarReal(
+      : `Resultado acumulado: ${resultadoNaoRealizado >= 0 ? '+' : ''}${formatarReal(
     resultadoNaoRealizado,
   )}`}
 </span>
