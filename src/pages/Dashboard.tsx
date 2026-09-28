@@ -463,6 +463,93 @@ const dataFimHistoricoBenchmark =
         .slice(0, 10)
     : null
 
+    const rentabilidadePeriodoGrafico = (() => {
+  if (
+    dadosGrafico.length < 2 ||
+    dadosGrafico[0].valor <= 0
+  ) {
+    return null
+  }
+
+  const inicioPeriodo = dadosGrafico[0].data
+
+  const fimPeriodo =
+    dadosGrafico[dadosGrafico.length - 1].data
+
+  const duracaoPeriodo =
+    Math.max(fimPeriodo - inicioPeriodo, 1)
+
+  let fluxoLiquido = 0
+  let fluxoPonderado = 0
+
+  posicoes.forEach((posicao) => {
+    const movimentacoes =
+      posicao.movimentacoes &&
+      posicao.movimentacoes.length > 0
+        ? posicao.movimentacoes
+        : [
+            {
+              id: `inicial-${posicao.ticker}`,
+              tipo: 'compra' as TipoMovimentacao,
+              quantidade: posicao.quantidade,
+              preco: posicao.precoMedio,
+              data: posicao.data,
+            },
+          ]
+
+    movimentacoes.forEach((movimentacao) => {
+      const dataMovimentacao = Math.floor(
+        new Date(
+          `${movimentacao.data}T12:00:00Z`,
+        ).getTime() / 1000,
+      )
+
+      if (
+        dataMovimentacao <= inicioPeriodo ||
+        dataMovimentacao > fimPeriodo
+      ) {
+        return
+      }
+
+      const valorMovimentacao =
+        movimentacao.quantidade *
+        movimentacao.preco
+
+      const fluxo =
+        movimentacao.tipo === 'compra'
+          ? valorMovimentacao
+          : -valorMovimentacao
+
+      const peso =
+        (fimPeriodo - dataMovimentacao) /
+        duracaoPeriodo
+
+      fluxoLiquido += fluxo
+      fluxoPonderado += fluxo * peso
+    })
+  })
+
+  const valorInicial = dadosGrafico[0].valor
+
+  const valorFinal =
+    dadosGrafico[dadosGrafico.length - 1].valor
+
+  const baseAjustada =
+    valorInicial + fluxoPonderado
+
+  if (baseAjustada <= 0) {
+    return null
+  }
+
+  return (
+    ((valorFinal -
+      valorInicial -
+      fluxoLiquido) /
+      baseAjustada) *
+    100
+  )
+})()
+
 const dataFimBenchmarkEfetiva =
   benchmarkSelecionado === 'CDI'
     ? dataFimCdi
@@ -925,6 +1012,25 @@ const pontosGrafico = dadosGrafico
   <div>
     <p className="panel-label">CARTEIRA</p>
     <h3>Evolução patrimonial</h3>
+
+    {rentabilidadePeriodoGrafico != null && (
+  <div className="period-return">
+    <span>Rentabilidade no período</span>
+
+    <strong
+      className={
+        rentabilidadePeriodoGrafico >= 0
+          ? 'positive-text'
+          : 'negative-text'
+      }
+    >
+      {rentabilidadePeriodoGrafico >= 0 ? '+' : ''}
+      {rentabilidadePeriodoGrafico
+        .toFixed(2)
+        .replace('.', ',')}%
+    </strong>
+  </div>
+)}
   </div>
 
   <div className="benchmark-dropdown">
