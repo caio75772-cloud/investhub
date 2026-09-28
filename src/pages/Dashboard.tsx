@@ -443,10 +443,29 @@ valoresPorData.set(
       valor,
     }))
 })()
+const ultimoPontoHistoricoBenchmark =
+  historicoBenchmark?.pontos
+    .filter((ponto) => {
+      const preco =
+        ponto.adjustedClose ?? ponto.close
+
+      return Number.isFinite(preco)
+    })
+    .at(-1)
+
+const dataFimHistoricoBenchmark =
+  ultimoPontoHistoricoBenchmark
+    ? new Date(
+        ultimoPontoHistoricoBenchmark.date * 1000,
+      )
+        .toISOString()
+        .slice(0, 10)
+    : null
+
 const dataFimBenchmarkEfetiva =
   benchmarkSelecionado === 'CDI'
     ? dataFimCdi
-    : null
+    : dataFimHistoricoBenchmark
 
 const dadosGraficoComparaveis =
   dataFimBenchmarkEfetiva
