@@ -748,7 +748,7 @@ const pontosGrafico = dadosGrafico
         <article className="stat-card">
           <div className="stat-top">
             <div>
-              <p>Rentabilidade</p>
+              <p>Rentabilidade acumulada</p>
               <h2>
   {!cotacoesCarregadas
     ? 'Carregando...'
@@ -776,9 +776,9 @@ const pontosGrafico = dadosGrafico
     ? 'Carregando...'
     : cotacoesIncompletas
       ? 'Dados parciais'
-      : `${resultadoNaoRealizado >= 0 ? '+' : ''}${formatarReal(
-          resultadoNaoRealizado,
-        )} não realizado`}
+      : `Resultado: ${resultadoNaoRealizado >= 0 ? '+' : ''}${formatarReal(
+    resultadoNaoRealizado,
+  )}`}
 </span>
         </article>
 
