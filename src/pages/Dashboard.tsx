@@ -45,6 +45,9 @@ const [carregandoBenchmark, setCarregandoBenchmark] =
   const [rentabilidadeCdi, setRentabilidadeCdi] =
   useState<number | null>(null)
 
+  const [dataFimCdi, setDataFimCdi] =
+  useState<string | null>(null)
+
 const [posicoes, setPosicoes] = useState<Posicao[]>([])
 
 const [cotacoes, setCotacoes] = useState<
@@ -162,7 +165,7 @@ useEffect(() => {
     try {
       if (benchmarkSelecionado === 'CDI') {
         setHistoricoBenchmark(null)
-
+setDataFimCdi(null)
         if (
   !dataInicioComparacao ||
   !dataFimComparacao
@@ -185,6 +188,21 @@ const resposta = await fetch(
         }
 
         const dados = await resposta.json()
+
+        const ultimoDadoCdi =
+  dados.length > 0
+    ? dados[dados.length - 1]
+    : null
+
+if (ultimoDadoCdi?.data) {
+  const [dia, mes, ano] =
+    ultimoDadoCdi.data.split('/')
+
+  setDataFimCdi(`${ano}-${mes}-${dia}`)
+} else {
+  setDataFimCdi(null)
+}
+
 
         const acumulado = dados.reduce(
           (
@@ -425,19 +443,38 @@ valoresPorData.set(
       valor,
     }))
 })()
+const dataFimBenchmarkEfetiva =
+  benchmarkSelecionado === 'CDI'
+    ? dataFimCdi
+    : null
 
+const dadosGraficoComparaveis =
+  dataFimBenchmarkEfetiva
+    ? dadosGrafico.filter((ponto) => {
+        const dataPonto = new Date(
+          ponto.data * 1000,
+        )
+          .toISOString()
+          .slice(0, 10)
+
+        return dataPonto <= dataFimBenchmarkEfetiva
+      })
+    : dadosGrafico
 const rentabilidadePeriodoCarteira = (() => {
   if (
-    dadosGrafico.length < 2 ||
-    dadosGrafico[0].valor <= 0
+    dadosGraficoComparaveis.length < 2 ||
+    dadosGraficoComparaveis[0].valor <= 0
   ) {
     return null
   }
 
-  const inicioPeriodo = dadosGrafico[0].data
+  const inicioPeriodo =
+  dadosGraficoComparaveis[0].data
 
   const fimPeriodo =
-    dadosGrafico[dadosGrafico.length - 1].data
+  dadosGraficoComparaveis[
+    dadosGraficoComparaveis.length - 1
+  ].data
 
   const duracaoPeriodo =
     Math.max(fimPeriodo - inicioPeriodo, 1)
@@ -493,10 +530,12 @@ const rentabilidadePeriodoCarteira = (() => {
   })
 
   const valorInicial =
-    dadosGrafico[0].valor
+  dadosGraficoComparaveis[0].valor
 
-  const valorFinal =
-    dadosGrafico[dadosGrafico.length - 1].valor
+const valorFinal =
+  dadosGraficoComparaveis[
+    dadosGraficoComparaveis.length - 1
+  ].valor
 
   const baseAjustada =
     valorInicial + fluxoPonderado
@@ -530,6 +569,7 @@ const dataInicioComparacao =
         .slice(0, 10)
     : null
 
+    
 const pontosBenchmarkComparaveis =
   historicoBenchmark?.pontos.filter((ponto) => {
     const preco =
