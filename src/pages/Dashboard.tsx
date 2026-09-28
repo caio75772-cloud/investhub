@@ -163,31 +163,21 @@ useEffect(() => {
       if (benchmarkSelecionado === 'CDI') {
         setHistoricoBenchmark(null)
 
-        const hoje = new Date()
-        const inicio = new Date(hoje)
+        if (
+  !dataInicioComparacao ||
+  !dataFimComparacao
+) {
+  setRentabilidadeCdi(null)
+  return
+}
 
-        if (periodoGrafico === '1mo') {
-          inicio.setMonth(inicio.getMonth() - 1)
-        } else if (periodoGrafico === '3mo') {
-          inicio.setMonth(inicio.getMonth() - 3)
-        } else if (periodoGrafico === '6mo') {
-          inicio.setMonth(inicio.getMonth() - 6)
-        } else {
-          inicio.setFullYear(inicio.getFullYear() - 1)
-        }
-
-        const formatarData = (data: Date) =>
-          [
-            data.getFullYear(),
-            String(data.getMonth() + 1).padStart(2, '0'),
-            String(data.getDate()).padStart(2, '0'),
-          ].join('-')
-
-        const resposta = await fetch(
-          `/api/cdi?inicio=${formatarData(
-            inicio,
-          )}&fim=${formatarData(hoje)}`,
-        )
+const resposta = await fetch(
+  `/api/cdi?inicio=${encodeURIComponent(
+    dataInicioComparacao,
+  )}&fim=${encodeURIComponent(
+    dataFimComparacao,
+  )}`,
+)
 
         if (!resposta.ok) {
           setRentabilidadeCdi(null)
@@ -262,8 +252,11 @@ useEffect(() => {
   }
 
   void carregarBenchmark()
-}, [benchmarkSelecionado, periodoGrafico])
-
+}, [
+  benchmarkSelecionado,
+  periodoGrafico,
+  historico,
+])
 const valorInvestidoTotal =
   calcularValorInvestido(posicoes)
 
@@ -528,6 +521,15 @@ const dataInicioComparacao =
         .slice(0, 10)
     : null
 
+    const dataFimComparacao =
+  dadosGrafico.length > 0
+    ? new Date(
+        dadosGrafico[dadosGrafico.length - 1].data * 1000,
+      )
+        .toISOString()
+        .slice(0, 10)
+    : null
+
 const pontosBenchmarkComparaveis =
   historicoBenchmark?.pontos.filter((ponto) => {
     const preco =
@@ -537,17 +539,23 @@ const pontosBenchmarkComparaveis =
       return false
     }
 
-    if (!dataInicioComparacao) {
-      return true
-    }
+    if (
+  !dataInicioComparacao ||
+  !dataFimComparacao
+) {
+  return true
+}
 
-    const dataPonto = new Date(
-      ponto.date * 1000,
-    )
-      .toISOString()
-      .slice(0, 10)
+const dataPonto = new Date(
+  ponto.date * 1000,
+)
+  .toISOString()
+  .slice(0, 10)
 
-    return dataPonto >= dataInicioComparacao
+return (
+  dataPonto >= dataInicioComparacao &&
+  dataPonto <= dataFimComparacao
+)
   }) ?? []
 
 const primeiroPontoBenchmark =
