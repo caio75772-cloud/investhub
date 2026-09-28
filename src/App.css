@@ -342,8 +342,15 @@ overflow: hidden;
 }
 
 .period-return strong {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(239, 98, 98, 0.08);
+}
+
+.period-return .positive-text {
+  background: rgba(0, 214, 163, 0.08);
 }
 
 .panel-header h3 {
