@@ -15,6 +15,10 @@ import {
   type SerieHistorica,
 } from '../services/mercado'
 import {
+  buscarProventosAtivo,
+  type Provento,
+} from '../services/proventos'
+import {
   carregarCarteira,
   type Posicao,
   type TipoMovimentacao,
@@ -49,6 +53,19 @@ const [carregandoBenchmark, setCarregandoBenchmark] =
   useState<string | null>(null)
 
 const [posicoes, setPosicoes] = useState<Posicao[]>([])
+
+const [proventos, setProventos] =
+  useState<Provento[]>([])
+
+const [
+  proventosDisponiveis,
+  setProventosDisponiveis,
+] = useState<boolean | null>(null)
+
+const [
+  carregandoProventos,
+  setCarregandoProventos,
+] = useState(false)
 
 const [cotacoes, setCotacoes] = useState<
   Record<string, Cotacao>
@@ -676,7 +693,136 @@ const dataInicioComparacao =
         .slice(0, 10)
     : null
 
-    
+    useEffect(() => {
+  async function carregarProventos() {
+    if (
+      posicoes.length === 0 ||
+      !dataInicioComparacao ||
+      !dataFimComparacao
+    ) {
+      setProventos([])
+      setProventosDisponiveis(null)
+      return
+    }
+
+    setCarregandoProventos(true)
+
+    try {
+      const todosProventos: Provento[] = []
+
+      for (const posicao of posicoes) {
+        const resposta =
+          await buscarProventosAtivo(
+            posicao.ticker,
+            dataInicioComparacao,
+            dataFimComparacao,
+          )
+
+        if (!resposta.disponivel) {
+          setProventos([])
+          setProventosDisponiveis(false)
+          return
+        }
+
+        todosProventos.push(
+          ...resposta.proventos,
+        )
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, 300),
+        )
+      }
+
+      setProventos(todosProventos)
+      setProventosDisponiveis(true)
+    } catch (erro) {
+      console.error(
+        'Erro ao carregar proventos:',
+        erro,
+      )
+
+      setProventos([])
+      setProventosDisponiveis(false)
+    } finally {
+      setCarregandoProventos(false)
+    }
+  }
+
+  carregarProventos()
+}, [
+  posicoes,
+  dataInicioComparacao,
+  dataFimComparacao,
+])
+const totalProventosPeriodo = proventos.reduce(
+  (total, provento) => {
+    if (
+      !provento.dataCom ||
+      !provento.dataPagamento ||
+      !dataInicioComparacao ||
+      !dataFimComparacao
+    ) {
+      return total
+    }
+
+    if (
+      provento.dataPagamento < dataInicioComparacao ||
+      provento.dataPagamento > dataFimComparacao
+    ) {
+      return total
+    }
+
+    const posicao = posicoes.find(
+      (item) => item.ticker === provento.ticker,
+    )
+
+    if (!posicao) {
+      return total
+    }
+
+    const movimentacoes =
+      posicao.movimentacoes &&
+      posicao.movimentacoes.length > 0
+        ? posicao.movimentacoes
+        : [
+            {
+              id: `inicial-${posicao.ticker}`,
+              tipo: 'compra' as TipoMovimentacao,
+              quantidade: posicao.quantidade,
+              preco: posicao.precoMedio,
+              data: posicao.data,
+            },
+          ]
+
+    const quantidadeNaDataCom =
+      movimentacoes.reduce(
+        (quantidade, movimentacao) => {
+          if (
+            movimentacao.data >
+            provento.dataCom!
+          ) {
+            return quantidade
+          }
+
+          return movimentacao.tipo === 'compra'
+            ? quantidade + movimentacao.quantidade
+            : quantidade - movimentacao.quantidade
+        },
+        0,
+      )
+
+    if (quantidadeNaDataCom <= 0) {
+      return total
+    }
+
+    return (
+      total +
+      quantidadeNaDataCom *
+        provento.valorPorAcao
+    )
+  },
+  0,
+)
 const pontosBenchmarkComparaveis =
   historicoBenchmark?.pontos.filter((ponto) => {
     const preco =
