@@ -573,11 +573,19 @@ const dadosRentabilidadeGrafico = (() => {
       }
     }
 
-    const retornoIntervalo =
-      (ponto.valor -
-        fluxoPeriodo) /
-        pontoAnterior.valor -
-      1
+    const capitalBase =
+  pontoAnterior.valor + fluxoPeriodo
+
+if (capitalBase <= 0) {
+  return {
+    data: ponto.data,
+    rentabilidade:
+      (fatorAcumulado - 1) * 100,
+  }
+}
+
+const retornoIntervalo =
+  ponto.valor / capitalBase - 1
 
     fatorAcumulado *=
       1 + retornoIntervalo
