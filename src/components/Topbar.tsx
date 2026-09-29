@@ -113,8 +113,18 @@ function Topbar() {
               key={item.ticker}
             >
               <span className="topbar-quote-name">
-                {item.nome}
-              </span>
+  {item.nome}
+</span>
+
+<span className="topbar-quote-name-mobile">
+  {item.ticker === '^BVSP'
+    ? 'IBOV'
+    : item.ticker === 'IVVB11'
+      ? 'S&P'
+      : item.ticker === 'NASD11'
+        ? 'NASD'
+        : item.ticker}
+</span>
 
               <strong>
                 {formatarValor(item)}

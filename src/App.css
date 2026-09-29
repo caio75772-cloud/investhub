@@ -137,6 +137,10 @@ button {
   color: #8ba0b6;
 }
 
+.topbar-quote-name-mobile {
+  display: none;
+}
+
 .topbar-quote strong {
   color: #f5f7fa;
   font-size: 11px;
@@ -674,6 +678,12 @@ overflow: hidden;
 
 .topbar-quote-name {
   display: none;
+}
+
+.topbar-quote-name-mobile {
+  display: inline;
+  color: #71869b;
+  font-size: 9px;
 }
 
 .topbar-profile {
