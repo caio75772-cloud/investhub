@@ -51,6 +51,187 @@ button {
     var(--background);
 }
 
+/* TOPBAR */
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 64px;
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1fr)
+    minmax(420px, auto)
+    minmax(220px, 1fr);
+  align-items: center;
+  gap: 20px;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7, 11, 16, 0.96);
+  backdrop-filter: blur(14px);
+}
+
+/* BUSCA */
+
+.topbar-search {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 0 13px;
+  border: 1px solid #1d2a38;
+  border-radius: 12px;
+  background: #111a25;
+  color: #60758b;
+}
+
+.topbar-search:focus-within {
+  border-color: rgba(0, 214, 163, 0.45);
+}
+
+.topbar-search input {
+  width: 100%;
+  min-width: 0;
+  outline: none;
+  border: 0;
+  background: transparent;
+  color: #f5f7fa;
+  font-size: 12px;
+}
+
+.topbar-search input::placeholder {
+  color: #536579;
+}
+
+/* COTAÇÕES */
+
+.topbar-market {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 8px 16px;
+  border: 1px solid #1d2a38;
+  border-radius: 999px;
+  background: #0c131c;
+  white-space: nowrap;
+}
+
+.topbar-quote {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.topbar-quote-name {
+  color: #8ba0b6;
+}
+
+.topbar-quote strong {
+  color: #f5f7fa;
+  font-size: 11px;
+}
+
+.topbar-quote-change {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.topbar-quote-change.positive {
+  color: #00d6a3;
+}
+
+.topbar-quote-change.negative {
+  color: #ef6262;
+}
+
+.topbar-loading {
+  color: #61758a;
+  font-size: 11px;
+}
+
+/* AÇÕES / PERFIL */
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.topbar-icon-button {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #1d2a38;
+  border-radius: 50%;
+  background: #0d151f;
+  color: #7d91a7;
+}
+
+.topbar-icon-button:hover {
+  color: var(--primary);
+  border-color: rgba(0, 214, 163, 0.35);
+}
+
+.topbar-profile {
+  height: 40px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 11px 4px 5px;
+  border: 1px solid #1d2a38;
+  border-radius: 12px;
+  background: #0d151f;
+}
+
+.topbar-avatar {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #06120f;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.topbar-profile > div:last-child {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar-profile strong {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.topbar-profile span {
+  margin-top: 1px;
+  color: #61758a;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
 /* SIDEBAR */
 
 .sidebar {
@@ -438,13 +619,72 @@ overflow: hidden;
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
+
+  .topbar {
+  grid-template-columns: minmax(180px, 1fr) auto;
+}
+
+.topbar-market {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.topbar-actions {
+  grid-column: 2;
+  grid-row: 1;
+}
 }
 
 @media (max-width: 700px) {
   .stats-grid > .stat-card:first-child h2 {
   font-size: 17px;
   letter-spacing: -0.4px;
+
+  .topbar {
+  min-height: auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 9px 12px;
 }
+
+.topbar-search {
+  height: 36px;
+}
+
+.topbar-search input {
+  font-size: 11px;
+}
+
+.topbar-market {
+  grid-column: 1 / -1;
+  gap: 14px;
+  justify-content: flex-start;
+  overflow: hidden;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.topbar-quote {
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+}
+
+.topbar-quote-name {
+  display: none;
+}
+
+.topbar-profile {
+  display: none;
+}
+
+.topbar-icon-button {
+  width: 36px;
+  height: 36px;
+}
+
   .sidebar {
     width: 78px;
     padding: 24px 10px;
