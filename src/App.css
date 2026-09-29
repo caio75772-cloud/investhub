@@ -685,6 +685,83 @@ overflow: hidden;
   height: 36px;
 }
 
+/* Evita qualquer largura maior que a tela */
+.content,
+.dashboard-grid,
+.main-panel,
+.side-panel,
+.portfolio-chart {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.content {
+  overflow-x: hidden;
+}
+
+.dashboard-grid {
+  overflow: hidden;
+}
+
+.panel {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Cabeçalho do gráfico */
+.main-panel .panel-header {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 125px;
+  align-items: start;
+  gap: 10px;
+}
+
+.main-panel .panel-header > div:first-child {
+  min-width: 0;
+}
+
+.main-panel .benchmark-dropdown {
+  width: 125px;
+  min-width: 0;
+}
+
+.main-panel .benchmark-trigger {
+  width: 100%;
+  min-width: 0;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* Gráfico */
+.portfolio-chart {
+  overflow: hidden;
+}
+
+.portfolio-chart svg {
+  width: 100%;
+  max-width: 100%;
+  height: 220px;
+}
+
+.portfolio-chart-summary {
+  width: 100%;
+  min-width: 0;
+  gap: 12px;
+}
+
+.portfolio-chart-summary > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.portfolio-chart-summary strong {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
   .sidebar {
     width: 78px;
     padding: 24px 10px;
