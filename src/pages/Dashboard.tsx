@@ -310,6 +310,43 @@ const rentabilidade =
     patrimonioTotal,
   )
 
+  const patrimonioFechamentoAnterior =
+  posicoes.reduce((total, posicao) => {
+    const cotacao =
+      cotacoes[posicao.ticker]
+
+    if (!cotacao) {
+      return total
+    }
+
+    const fatorVariacao =
+      1 + cotacao.variacao / 100
+
+    if (fatorVariacao <= 0) {
+      return total
+    }
+
+    const precoFechamentoAnterior =
+      cotacao.preco / fatorVariacao
+
+    return (
+      total +
+      posicao.quantidade *
+        precoFechamentoAnterior
+    )
+  }, 0)
+
+const resultadoDia =
+  patrimonioTotal -
+  patrimonioFechamentoAnterior
+
+const rentabilidadeDia =
+  patrimonioFechamentoAnterior > 0
+    ? (resultadoDia /
+        patrimonioFechamentoAnterior) *
+      100
+    : 0
+
 const cotacoesIncompletas =
   cotacoesCarregadas &&
   posicoes.some(
@@ -1148,17 +1185,44 @@ const pontosGrafico = dadosGrafico
 <article className="stat-card">
   <div className="stat-top">
     <div>
-      <p>Ativos</p>
-      <h2>{posicoes.length}</h2>
+      <p>Resultado do dia</p>
+
+      <h2
+        className={
+          resultadoDia >= 0
+            ? 'positive-text'
+            : 'negative-text'
+        }
+      >
+        {!cotacoesCarregadas
+          ? 'Carregando...'
+          : cotacoesIncompletas
+            ? '—'
+            : `${resultadoDia >= 0 ? '+' : ''}${formatarReal(
+                resultadoDia,
+              )}`}
+      </h2>
     </div>
 
     <div className="stat-icon">
-      <Wallet size={21} />
+      <TrendingUp size={21} />
     </div>
   </div>
 
-  <span className="neutral-text">
-    Ativos na carteira
+  <span
+    className={
+      rentabilidadeDia >= 0
+        ? 'positive-text'
+        : 'negative-text'
+    }
+  >
+    {!cotacoesCarregadas
+      ? 'Carregando...'
+      : cotacoesIncompletas
+        ? 'Dados parciais'
+        : `${rentabilidadeDia >= 0 ? '+' : ''}${rentabilidadeDia
+            .toFixed(2)
+            .replace('.', ',')}% hoje`}
   </span>
 </article>
 
