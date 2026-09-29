@@ -994,7 +994,7 @@ const pontosGrafico = dadosGrafico
           <div className="stat-top">
             <div>
               <p>Patrimônio total</p>
-            <h2 style={{ whiteSpace: "nowrap", fontSize: "clamp(1.45rem, 1.55vw, 2rem)" }}>
+            <h2 className="patrimonio-total-value">
   {!cotacoesCarregadas
     ? 'Carregando...'
     : formatarReal(patrimonioTotal)}

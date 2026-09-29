@@ -389,6 +389,11 @@ button {
 
 /* CARDS */
 
+.patrimonio-total-value {
+  white-space: nowrap;
+  font-size: clamp(20px, 2vw, 28px);
+}
+
 .stats-grid {
   display: grid;
  grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -646,6 +651,12 @@ overflow: hidden;
   font-size: 17px;
   letter-spacing: -0.4px;
   }
+
+  .patrimonio-total-value {
+  font-size: 16px;
+  letter-spacing: -0.5px;
+}
+
   .topbar {
   min-height: auto;
   grid-template-columns: minmax(0, 1fr) auto;
