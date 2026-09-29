@@ -749,110 +749,7 @@ const dataFimBenchmarkEfetiva =
     ? dataFimCdi
     : dataFimHistoricoBenchmark
 
-const dadosGraficoComparaveis =
-  dataFimBenchmarkEfetiva
-    ? dadosGrafico.filter((ponto) => {
-        const dataPonto = new Date(
-          ponto.data * 1000,
-        )
-          .toISOString()
-          .slice(0, 10)
 
-        return dataPonto <= dataFimBenchmarkEfetiva
-      })
-    : dadosGrafico
-const rentabilidadePeriodoCarteira = (() => {
-  if (
-    dadosGraficoComparaveis.length < 2 ||
-    dadosGraficoComparaveis[0].valor <= 0
-  ) {
-    return null
-  }
-
-  const inicioPeriodo =
-  dadosGraficoComparaveis[0].data
-
-  const fimPeriodo =
-  dadosGraficoComparaveis[
-    dadosGraficoComparaveis.length - 1
-  ].data
-
-  const duracaoPeriodo =
-    Math.max(fimPeriodo - inicioPeriodo, 1)
-
-  let fluxoLiquido = 0
-  let fluxoPonderado = 0
-
-  posicoes.forEach((posicao) => {
-    const movimentacoes =
-  posicao.movimentacoes &&
-  posicao.movimentacoes.length > 0
-    ? posicao.movimentacoes
-    : [
-        {
-          id: `inicial-${posicao.ticker}`,
-          tipo: 'compra' as TipoMovimentacao,
-          quantidade: posicao.quantidade,
-          preco: posicao.precoMedio,
-          data: posicao.data,
-        },
-      ]
-
-    movimentacoes.forEach((movimentacao) => {
-      const dataMovimentacao = Math.floor(
-        new Date(
-          `${movimentacao.data}T12:00:00Z`,
-        ).getTime() / 1000,
-      )
-
-      if (
-        dataMovimentacao <= inicioPeriodo ||
-        dataMovimentacao > fimPeriodo
-      ) {
-        return
-      }
-
-      const valorMovimentacao =
-        movimentacao.quantidade *
-        movimentacao.preco
-
-      const fluxo =
-        movimentacao.tipo === 'compra'
-          ? valorMovimentacao
-          : -valorMovimentacao
-
-      const peso =
-        (fimPeriodo - dataMovimentacao) /
-        duracaoPeriodo
-
-      fluxoLiquido += fluxo
-      fluxoPonderado += fluxo * peso
-    })
-  })
-
-  const valorInicial =
-  dadosGraficoComparaveis[0].valor
-
-const valorFinal =
-  dadosGraficoComparaveis[
-    dadosGraficoComparaveis.length - 1
-  ].valor
-
-  const baseAjustada =
-    valorInicial + fluxoPonderado
-
-  if (baseAjustada <= 0) {
-    return null
-  }
-
-  return (
-    ((valorFinal -
-      valorInicial -
-      fluxoLiquido) /
-      baseAjustada) *
-    100
-  )
-})()
 
 const dataInicioComparacao =
   dadosGrafico.length > 0
@@ -1060,11 +957,36 @@ const rentabilidadeBenchmark =
         100
       : null
 
+const rentabilidadeCarteiraComparavel =
+  dadosRentabilidadeGrafico.length > 0
+    ? dadosRentabilidadeGrafico
+        .filter((ponto) => {
+          if (!dataFimBenchmarkEfetiva) {
+            return true
+          }
+
+          const dataPonto = new Date(
+            ponto.data * 1000,
+          )
+            .toISOString()
+            .slice(0, 10)
+
+          return (
+            dataPonto <=
+            dataFimBenchmarkEfetiva
+          )
+        })
+        .at(-1)?.rentabilidade ?? null
+    : null      
+
 const excessoBenchmark =
-  rentabilidadePeriodoCarteira != null &&
+  rentabilidadeCarteiraComparavel != null &&
   rentabilidadeBenchmark != null
-    ? ((1 + rentabilidadePeriodoCarteira / 100) /
-        (1 + rentabilidadeBenchmark / 100) -
+    ? ((1 +
+          rentabilidadeCarteiraComparavel /
+            100) /
+        (1 +
+          rentabilidadeBenchmark / 100) -
         1) *
       100
     : null
