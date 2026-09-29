@@ -1074,7 +1074,7 @@ const pontosGrafico = dadosGrafico
   {carregandoProventos
     ? 'Carregando proventos...'
     : proventosDisponiveis === false
-      ? 'Dados de proventos indisponíveis'
+      ? 'Dados indisponíveis'
       : proventosDisponiveis === true
         ? 'Recebidos no período'
         : 'Aguardando dados'}
