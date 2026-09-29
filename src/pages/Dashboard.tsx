@@ -1019,7 +1019,13 @@ const pontosGrafico = dadosGrafico
           <div className="stat-top">
             <div>
               <p>Proventos</p>
-              <h2>R$ 0,00</h2>
+              <h2>
+  {carregandoProventos
+    ? '...'
+    : proventosDisponiveis === true
+      ? formatarReal(totalProventosPeriodo)
+      : '—'}
+</h2>
             </div>
 
             <div className="stat-icon">
@@ -1028,8 +1034,14 @@ const pontosGrafico = dadosGrafico
           </div>
 
           <span className="neutral-text">
-            Recebidos no período
-          </span>
+  {carregandoProventos
+    ? 'Carregando proventos...'
+    : proventosDisponiveis === false
+      ? 'Dados de proventos indisponíveis'
+      : proventosDisponiveis === true
+        ? 'Recebidos no período'
+        : 'Aguardando dados'}
+</span>
         </article>
 <article className="stat-card">
   <div className="stat-top">
