@@ -641,7 +641,7 @@ overflow: hidden;
   .stats-grid > .stat-card:first-child h2 {
   font-size: 17px;
   letter-spacing: -0.4px;
-
+  }
   .topbar {
   min-height: auto;
   grid-template-columns: minmax(0, 1fr) auto;
