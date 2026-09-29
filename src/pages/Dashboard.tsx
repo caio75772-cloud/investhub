@@ -982,13 +982,8 @@ const rentabilidadeCarteiraComparavel =
 const excessoBenchmark =
   rentabilidadeCarteiraComparavel != null &&
   rentabilidadeBenchmark != null
-    ? ((1 +
-          rentabilidadeCarteiraComparavel /
-            100) /
-        (1 +
-          rentabilidadeBenchmark / 100) -
-        1) *
-      100
+    ? rentabilidadeCarteiraComparavel -
+      rentabilidadeBenchmark
     : null
 
 const larguraGrafico = 820
@@ -1169,8 +1164,8 @@ const pontosGrafico =
     : excessoBenchmark == null
       ? '—'
       : `${excessoBenchmark >= 0 ? '+' : ''}${excessoBenchmark
-          .toFixed(2)
-          .replace('.', ',')}%`}
+    .toFixed(2)
+    .replace('.', ',')} p.p.`}
 </h2>
     </div>
 
