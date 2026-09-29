@@ -500,102 +500,222 @@ valoresPorData.set(
 })()
 
 const dadosRentabilidadeGrafico = (() => {
-  if (dadosGrafico.length === 0) {
+  if (
+    historico.length === 0 ||
+    posicoes.length === 0
+  ) {
     return []
+  }
+
+  const normalizarDataRentabilidade = (
+    timestamp: number,
+  ) => {
+    const data = new Date(timestamp * 1000)
+
+    return Math.floor(
+      Date.UTC(
+        data.getUTCFullYear(),
+        data.getUTCMonth(),
+        data.getUTCDate(),
+        12,
+      ) / 1000,
+    )
+  }
+
+  const mapasDePrecos = new Map<
+    string,
+    Map<number, number>
+  >()
+
+  const datasDisponiveis = new Set<number>()
+
+  historico.forEach((serie) => {
+    const mapa = new Map<number, number>()
+
+    serie.pontos.forEach((ponto) => {
+      const preco =
+        ponto.adjustedClose ?? ponto.close
+
+      if (!Number.isFinite(preco)) {
+        return
+      }
+
+      const data =
+        normalizarDataRentabilidade(
+          ponto.date,
+        )
+
+      mapa.set(data, preco)
+      datasDisponiveis.add(data)
+    })
+
+    mapasDePrecos.set(
+      serie.ticker,
+      mapa,
+    )
+  })
+
+  const hoje =
+    normalizarDataRentabilidade(
+      Math.floor(Date.now() / 1000),
+    )
+
+  const cotacoesAtuaisCompletas =
+    posicoes.every(
+      (posicao) =>
+        cotacoes[posicao.ticker]?.preco != null,
+    )
+
+  if (cotacoesAtuaisCompletas) {
+    posicoes.forEach((posicao) => {
+      const precoAtual =
+        cotacoes[posicao.ticker]?.preco
+
+      if (precoAtual == null) {
+        return
+      }
+
+      const mapa =
+        mapasDePrecos.get(posicao.ticker)
+
+      if (mapa) {
+        mapa.set(hoje, precoAtual)
+      }
+    })
+
+    datasDisponiveis.add(hoje)
+  }
+
+  const datas = Array.from(
+    datasDisponiveis,
+  ).sort((a, b) => a - b)
+
+  if (datas.length === 0) {
+    return []
+  }
+
+  function quantidadeNaData(
+    posicao: Posicao,
+    timestamp: number,
+  ) {
+    const data = new Date(
+      timestamp * 1000,
+    )
+      .toISOString()
+      .slice(0, 10)
+
+    const movimentacoes =
+      posicao.movimentacoes &&
+      posicao.movimentacoes.length > 0
+        ? posicao.movimentacoes
+        : [
+            {
+              id: `inicial-${posicao.ticker}`,
+              tipo:
+                'compra' as TipoMovimentacao,
+              quantidade:
+                posicao.quantidade,
+              preco:
+                posicao.precoMedio,
+              data:
+                posicao.data,
+            },
+          ]
+
+    return movimentacoes.reduce(
+      (quantidade, movimentacao) => {
+        if (movimentacao.data > data) {
+          return quantidade
+        }
+
+        return movimentacao.tipo ===
+          'compra'
+          ? quantidade +
+              movimentacao.quantidade
+          : quantidade -
+              movimentacao.quantidade
+      },
+      0,
+    )
   }
 
   let fatorAcumulado = 1
 
-  return dadosGrafico.map((ponto, index) => {
-    if (index === 0) {
-      return {
-        data: ponto.data,
-        rentabilidade: 0,
-      }
-    }
+  const resultado = [
+    {
+      data: datas[0],
+      rentabilidade: 0,
+    },
+  ]
 
-    const pontoAnterior =
-      dadosGrafico[index - 1]
+  for (
+    let index = 1;
+    index < datas.length;
+    index += 1
+  ) {
+    const dataAnterior =
+      datas[index - 1]
 
-    const inicioIntervalo =
-      pontoAnterior.data
+    const dataAtual =
+      datas[index]
 
-    const fimIntervalo =
-      ponto.data
-
-    let fluxoPeriodo = 0
+    let patrimonioBase = 0
+    let resultadoMercado = 0
 
     posicoes.forEach((posicao) => {
-      const movimentacoes =
-        posicao.movimentacoes &&
-        posicao.movimentacoes.length > 0
-          ? posicao.movimentacoes
-          : [
-              {
-                id: `inicial-${posicao.ticker}`,
-                tipo: 'compra' as TipoMovimentacao,
-                quantidade: posicao.quantidade,
-                preco: posicao.precoMedio,
-                data: posicao.data,
-              },
-            ]
-
-      movimentacoes.forEach((movimentacao) => {
-        const dataMovimentacao = Math.floor(
-          new Date(
-            `${movimentacao.data}T12:00:00Z`,
-          ).getTime() / 1000,
+      const quantidade =
+        quantidadeNaData(
+          posicao,
+          dataAnterior,
         )
 
-        if (
-          dataMovimentacao <= inicioIntervalo ||
-          dataMovimentacao > fimIntervalo
-        ) {
-          return
-        }
+      if (quantidade <= 0) {
+        return
+      }
 
-        const valorMovimentacao =
-          movimentacao.quantidade *
-          movimentacao.preco
+      const mapaPrecos =
+        mapasDePrecos.get(
+          posicao.ticker,
+        )
 
-        fluxoPeriodo +=
-          movimentacao.tipo === 'compra'
-            ? valorMovimentacao
-            : -valorMovimentacao
-      })
+      const precoAnterior =
+        mapaPrecos?.get(dataAnterior)
+
+      const precoAtual =
+        mapaPrecos?.get(dataAtual)
+
+      if (
+        precoAnterior == null ||
+        precoAtual == null
+      ) {
+        return
+      }
+
+      patrimonioBase +=
+        quantidade * precoAnterior
+
+      resultadoMercado +=
+        quantidade *
+        (precoAtual - precoAnterior)
     })
 
-    if (pontoAnterior.valor <= 0) {
-      return {
-        data: ponto.data,
-        rentabilidade:
-          (fatorAcumulado - 1) * 100,
-      }
+    if (patrimonioBase > 0) {
+      const retornoDoDia =
+        resultadoMercado /
+        patrimonioBase
+
+      fatorAcumulado *=
+        1 + retornoDoDia
     }
 
-    const capitalBase =
-  pontoAnterior.valor + fluxoPeriodo
-
-if (capitalBase <= 0) {
-  return {
-    data: ponto.data,
-    rentabilidade:
-      (fatorAcumulado - 1) * 100,
-  }
-}
-
-const retornoIntervalo =
-  ponto.valor / capitalBase - 1
-
-    fatorAcumulado *=
-      1 + retornoIntervalo
-
-    return {
-      data: ponto.data,
+    resultado.push({
+      data: dataAtual,
       rentabilidade:
         (fatorAcumulado - 1) * 100,
-    }
-  })
+    })
+  }
+
+  return resultado
 })()
 
 const ultimoPontoHistoricoBenchmark =
