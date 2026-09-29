@@ -498,6 +498,98 @@ valoresPorData.set(
       valor,
     }))
 })()
+
+const dadosRentabilidadeGrafico = (() => {
+  if (dadosGrafico.length === 0) {
+    return []
+  }
+
+  let fatorAcumulado = 1
+
+  return dadosGrafico.map((ponto, index) => {
+    if (index === 0) {
+      return {
+        data: ponto.data,
+        rentabilidade: 0,
+      }
+    }
+
+    const pontoAnterior =
+      dadosGrafico[index - 1]
+
+    const inicioIntervalo =
+      pontoAnterior.data
+
+    const fimIntervalo =
+      ponto.data
+
+    let fluxoPeriodo = 0
+
+    posicoes.forEach((posicao) => {
+      const movimentacoes =
+        posicao.movimentacoes &&
+        posicao.movimentacoes.length > 0
+          ? posicao.movimentacoes
+          : [
+              {
+                id: `inicial-${posicao.ticker}`,
+                tipo: 'compra' as TipoMovimentacao,
+                quantidade: posicao.quantidade,
+                preco: posicao.precoMedio,
+                data: posicao.data,
+              },
+            ]
+
+      movimentacoes.forEach((movimentacao) => {
+        const dataMovimentacao = Math.floor(
+          new Date(
+            `${movimentacao.data}T12:00:00Z`,
+          ).getTime() / 1000,
+        )
+
+        if (
+          dataMovimentacao <= inicioIntervalo ||
+          dataMovimentacao > fimIntervalo
+        ) {
+          return
+        }
+
+        const valorMovimentacao =
+          movimentacao.quantidade *
+          movimentacao.preco
+
+        fluxoPeriodo +=
+          movimentacao.tipo === 'compra'
+            ? valorMovimentacao
+            : -valorMovimentacao
+      })
+    })
+
+    if (pontoAnterior.valor <= 0) {
+      return {
+        data: ponto.data,
+        rentabilidade:
+          (fatorAcumulado - 1) * 100,
+      }
+    }
+
+    const retornoIntervalo =
+      (ponto.valor -
+        fluxoPeriodo) /
+        pontoAnterior.valor -
+      1
+
+    fatorAcumulado *=
+      1 + retornoIntervalo
+
+    return {
+      data: ponto.data,
+      rentabilidade:
+        (fatorAcumulado - 1) * 100,
+    }
+  })
+})()
+
 const ultimoPontoHistoricoBenchmark =
   historicoBenchmark?.pontos
     .filter((ponto) => {
@@ -517,92 +609,12 @@ const dataFimHistoricoBenchmark =
         .slice(0, 10)
     : null
 
-    const rentabilidadePeriodoGrafico = (() => {
-  if (
-    dadosGrafico.length < 2 ||
-    dadosGrafico[0].valor <= 0
-  ) {
-    return null
-  }
-
-  const inicioPeriodo = dadosGrafico[0].data
-
-  const fimPeriodo =
-    dadosGrafico[dadosGrafico.length - 1].data
-
-  const duracaoPeriodo =
-    Math.max(fimPeriodo - inicioPeriodo, 1)
-
-  let fluxoLiquido = 0
-  let fluxoPonderado = 0
-
-  posicoes.forEach((posicao) => {
-    const movimentacoes =
-      posicao.movimentacoes &&
-      posicao.movimentacoes.length > 0
-        ? posicao.movimentacoes
-        : [
-            {
-              id: `inicial-${posicao.ticker}`,
-              tipo: 'compra' as TipoMovimentacao,
-              quantidade: posicao.quantidade,
-              preco: posicao.precoMedio,
-              data: posicao.data,
-            },
-          ]
-
-    movimentacoes.forEach((movimentacao) => {
-      const dataMovimentacao = Math.floor(
-        new Date(
-          `${movimentacao.data}T12:00:00Z`,
-        ).getTime() / 1000,
-      )
-
-      if (
-        dataMovimentacao <= inicioPeriodo ||
-        dataMovimentacao > fimPeriodo
-      ) {
-        return
-      }
-
-      const valorMovimentacao =
-        movimentacao.quantidade *
-        movimentacao.preco
-
-      const fluxo =
-        movimentacao.tipo === 'compra'
-          ? valorMovimentacao
-          : -valorMovimentacao
-
-      const peso =
-        (fimPeriodo - dataMovimentacao) /
-        duracaoPeriodo
-
-      fluxoLiquido += fluxo
-      fluxoPonderado += fluxo * peso
-    })
-  })
-
-  const valorInicial = dadosGrafico[0].valor
-
-  const valorFinal =
-    dadosGrafico[dadosGrafico.length - 1].valor
-
-  const baseAjustada =
-    valorInicial + fluxoPonderado
-
-  if (baseAjustada <= 0) {
-    return null
-  }
-
-  return (
-    ((valorFinal -
-      valorInicial -
-      fluxoLiquido) /
-      baseAjustada) *
-    100
-  )
-})()
+    const rentabilidadePeriodoGrafico =
+  dadosRentabilidadeGrafico.length > 0
+    ? dadosRentabilidadeGrafico[
+        dadosRentabilidadeGrafico.length - 1
+      ].rentabilidade
+    : null
 
 const dataFimBenchmarkEfetiva =
   benchmarkSelecionado === 'CDI'
@@ -934,7 +946,9 @@ const alturaGrafico = 260
 const margemGrafico = 18
 
 const valoresGrafico =
-  dadosGrafico.map((ponto) => ponto.valor)
+  dadosRentabilidadeGrafico.map(
+    (ponto) => ponto.rentabilidade,
+  )
 
 const minimoGrafico =
   valoresGrafico.length > 0
@@ -950,25 +964,32 @@ const intervaloGrafico =
   Math.max(maximoGrafico - minimoGrafico, 1)
 
 const divisorGrafico =
-  Math.max(dadosGrafico.length - 1, 1)
+  Math.max(
+    dadosRentabilidadeGrafico.length - 1,
+    1,
+  )
 
-const pontosGrafico = dadosGrafico
-  .map((ponto, index) => {
-    const x =
-      margemGrafico +
-      (index / divisorGrafico) *
-        (larguraGrafico - margemGrafico * 2)
+const pontosGrafico =
+  dadosRentabilidadeGrafico
+    .map((ponto, index) => {
+      const x =
+        margemGrafico +
+        (index / divisorGrafico) *
+          (larguraGrafico -
+            margemGrafico * 2)
 
-    const y =
-      margemGrafico +
-      (1 -
-        (ponto.valor - minimoGrafico) /
-          intervaloGrafico) *
-        (alturaGrafico - margemGrafico * 2)
+      const y =
+        margemGrafico +
+        (1 -
+          (ponto.rentabilidade -
+            minimoGrafico) /
+            intervaloGrafico) *
+          (alturaGrafico -
+            margemGrafico * 2)
 
-    return `${x},${y}`
-  })
-  .join(' ')
+      return `${x},${y}`
+    })
+    .join(' ')
   return (
     <main className="content">
       <header className="page-header">
@@ -1233,7 +1254,7 @@ const pontosGrafico = dadosGrafico
           <div className="panel-header">
   <div>
     <p className="panel-label">CARTEIRA</p>
-    <h3>Evolução patrimonial</h3>
+    <h3>Rentabilidade da carteira</h3>
 
     {rentabilidadePeriodoGrafico != null && (
   <div className="period-return">
@@ -1348,27 +1369,35 @@ const pontosGrafico = dadosGrafico
 ) : (
   <div className="portfolio-chart">
     <div className="portfolio-chart-summary">
-      <div>
-        <span>Início do período</span>
-        <strong>
-          {formatarReal(dadosGrafico[0].valor)}
-        </strong>
-      </div>
+  <div>
+    <span>Início do período</span>
+    <strong>0,00%</strong>
+  </div>
 
-      <div>
-        <span>Final do período</span>
-        <strong>
-          {formatarReal(
-            dadosGrafico[dadosGrafico.length - 1].valor,
-          )}
-        </strong>
-      </div>
-    </div>
+  <div>
+    <span>Final do período</span>
+
+    <strong
+      className={
+        rentabilidadePeriodoGrafico != null &&
+        rentabilidadePeriodoGrafico >= 0
+          ? 'positive-text'
+          : 'negative-text'
+      }
+    >
+      {rentabilidadePeriodoGrafico != null
+        ? `${rentabilidadePeriodoGrafico >= 0 ? '+' : ''}${rentabilidadePeriodoGrafico
+            .toFixed(2)
+            .replace('.', ',')}%`
+        : '—'}
+    </strong>
+  </div>
+</div>
 
     <svg
       viewBox={`0 0 ${larguraGrafico} ${alturaGrafico}`}
       role="img"
-      aria-label="Evolução patrimonial"
+      aria-label="Rentabilidade da carteira"
     >
       <polyline
         points={pontosGrafico}
@@ -1383,16 +1412,16 @@ const pontosGrafico = dadosGrafico
     <div className="portfolio-chart-dates">
       <span>
         {new Date(
-          dadosGrafico[0].data * 1000,
-        ).toLocaleDateString('pt-BR')}
+  dadosRentabilidadeGrafico[0].data * 1000,
+).toLocaleDateString('pt-BR')}
       </span>
 
       <span>
         {new Date(
-          dadosGrafico[
-            dadosGrafico.length - 1
-          ].data * 1000,
-        ).toLocaleDateString('pt-BR')}
+  dadosRentabilidadeGrafico[
+    dadosRentabilidadeGrafico.length - 1
+  ].data * 1000,
+).toLocaleDateString('pt-BR')}
       </span>
     </div>
   </div>
