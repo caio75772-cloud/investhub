@@ -1078,20 +1078,35 @@ const intervaloGrafico =
     1,
   )
 
-const divisorGrafico =
+  const dataInicialGrafico =
+  dadosGraficoExibidos[0]?.data ?? 0
+
+const dataFinalGrafico =
+  dadosGraficoExibidos[
+    dadosGraficoExibidos.length - 1
+  ]?.data ?? dataInicialGrafico
+
+const intervaloDatasGrafico =
   Math.max(
-    dadosGraficoExibidos.length - 1,
+    dataFinalGrafico - dataInicialGrafico,
     1,
   )
 
+const calcularXGrafico = (
+  data: number,
+) =>
+  margemGrafico +
+  ((data - dataInicialGrafico) /
+    intervaloDatasGrafico) *
+    (larguraGrafico -
+      margemGrafico * 2)
+
+
 const pontosGrafico =
   dadosGraficoExibidos
-    .map((ponto, index) => {
+    .map((ponto) => {
       const x =
-        margemGrafico +
-        (index / divisorGrafico) *
-          (larguraGrafico -
-            margemGrafico * 2)
+  calcularXGrafico(ponto.data)
 
       const y =
         margemGrafico +
@@ -1106,20 +1121,53 @@ const pontosGrafico =
     })
     .join(' ')
 
-const divisorBenchmark =
-  Math.max(
-    dadosBenchmarkGrafico.length - 1,
-    1,
-  )
+const areaGrafico =
+  dadosGraficoExibidos.length > 1
+    ? (() => {
+        const pontos = dadosGraficoExibidos.map(
+          (ponto) => {
+            const x =
+              calcularXGrafico(ponto.data)
+
+            const y =
+              margemGrafico +
+              (1 -
+                (ponto.valor -
+                  minimoGrafico) /
+                  intervaloGrafico) *
+                (alturaGrafico -
+                  margemGrafico * 2)
+
+            return `${x},${y}`
+          },
+        )
+
+        const primeiroX =
+          calcularXGrafico(
+            dadosGraficoExibidos[0].data,
+          )
+
+        const ultimoX =
+          calcularXGrafico(
+            dadosGraficoExibidos[
+              dadosGraficoExibidos.length - 1
+            ].data,
+          )
+
+        const baseY =
+          alturaGrafico - margemGrafico
+
+        return `M ${primeiroX},${baseY} L ${pontos.join(
+          ' L ',
+        )} L ${ultimoX},${baseY} Z`
+      })()
+    : ''
 
 const pontosGraficoBenchmark =
   dadosBenchmarkGrafico
-    .map((ponto, index) => {
+    .map((ponto) => {
       const x =
-        margemGrafico +
-        (index / divisorBenchmark) *
-          (larguraGrafico -
-            margemGrafico * 2)
+  calcularXGrafico(ponto.data)
 
       const y =
         margemGrafico +
@@ -1628,6 +1676,35 @@ const pontosGraficoBenchmark =
       role="img"
       aria-label="Rentabilidade da carteira"
     >
+
+<defs>
+  <linearGradient
+    id="portfolioGradient"
+    x1="0"
+    x2="0"
+    y1="0"
+    y2="1"
+  >
+    <stop
+      offset="0%"
+      stopColor="rgba(0, 214, 163, 0.28)"
+    />
+    <stop
+      offset="100%"
+      stopColor="rgba(0, 214, 163, 0)"
+    />
+  </linearGradient>
+</defs>
+
+{modoGrafico === 'rentabilidade' &&
+  areaGrafico && (
+    <path
+      d={areaGrafico}
+      fill="url(#portfolioGradient)"
+      stroke="none"
+    />
+  )}
+
 {modoGrafico === 'rentabilidade' &&
   pontosGraficoBenchmark && (
     <polyline
