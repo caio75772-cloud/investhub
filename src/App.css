@@ -2003,3 +2003,9 @@ overflow: hidden;
   font-size: 12px;
   font-weight: 700;
 }
+
+.performance-reference {
+  margin: 6px 0 0;
+  color: #71869b;
+  font-size: 11px;
+}

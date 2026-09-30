@@ -1483,6 +1483,24 @@ const pontosGraficoBenchmark =
     : 'Evolução patrimonial'}
 </h3>
 
+{dadosGraficoExibidos.length > 0 && (
+  <p className="performance-reference">
+    {modoGrafico === 'rentabilidade'
+      ? 'Rentabilidade'
+      : 'Patrimônio'}
+    {' • De '}
+    {new Date(
+      dadosGraficoExibidos[0].data * 1000,
+    ).toLocaleDateString('pt-BR')}
+    {' até '}
+    {new Date(
+      dadosGraficoExibidos[
+        dadosGraficoExibidos.length - 1
+      ].data * 1000,
+    ).toLocaleDateString('pt-BR')}
+  </p>
+)}
+
     {modoGrafico === 'rentabilidade' ? (
   rentabilidadePeriodoGrafico != null && (
     <div className="period-return">
