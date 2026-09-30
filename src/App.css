@@ -548,6 +548,35 @@ overflow: hidden;
   font-size: 16px;
 }
 
+.performance-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.performance-tab {
+  padding: 10px 18px;
+  border: 1px solid #1d2a38;
+  border-radius: 10px;
+  background: #101923;
+  color: #71869b;
+  font-size: 13px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.performance-tab:hover {
+  border-color: rgba(0, 214, 163, 0.35);
+  color: #d9e3ec;
+}
+
+.performance-tab.active {
+  background: #f4f7fa;
+  border-color: #f4f7fa;
+  color: #07100e;
+}
+
 .panel-header select {
   outline: none;
   border: 1px solid var(--border);

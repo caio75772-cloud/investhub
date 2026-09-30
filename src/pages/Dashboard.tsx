@@ -79,6 +79,11 @@ const [periodoGrafico, setPeriodoGrafico] = useState('12mo')
 const [periodoAberto, setPeriodoAberto] =
   useState(false)
 
+  const [modoGrafico, setModoGrafico] =
+  useState<'rentabilidade' | 'patrimonio'>(
+    'rentabilidade',
+  )
+
 const [historico, setHistorico] = useState<SerieHistorica[]>([])
 const [carregandoHistorico, setCarregandoHistorico] = useState(false)
 useEffect(() => {
@@ -1296,6 +1301,37 @@ const pontosGrafico =
 
       <section className="dashboard-grid">
         <article className="panel main-panel">
+
+<div className="performance-tabs">
+  <button
+    type="button"
+    className={
+      modoGrafico === 'rentabilidade'
+        ? 'performance-tab active'
+        : 'performance-tab'
+    }
+    onClick={() =>
+      setModoGrafico('rentabilidade')
+    }
+  >
+    Rentabilidade
+  </button>
+
+  <button
+    type="button"
+    className={
+      modoGrafico === 'patrimonio'
+        ? 'performance-tab active'
+        : 'performance-tab'
+    }
+    onClick={() =>
+      setModoGrafico('patrimonio')
+    }
+  >
+    Patrimônio
+  </button>
+</div>
+
           <div className="panel-header">
   <div>
     <p className="panel-label">CARTEIRA</p>
