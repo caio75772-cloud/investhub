@@ -1820,6 +1820,90 @@ overflow: hidden;
     padding: 24px 16px 40px 20px;
   }
 
+  .performance-tabs {
+  width: 100%;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.performance-tab {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  font-size: 12px;
+}
+
+.performance-reference {
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.panel-header {
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.main-panel .panel-header {
+  flex-direction: column;
+}
+
+.main-panel .benchmark-dropdown {
+  width: 100%;
+  min-width: 0;
+}
+
+.main-panel .benchmark-trigger {
+  width: 100%;
+}
+
+.portfolio-chart {
+  padding: 14px 0 4px;
+}
+
+.portfolio-chart svg {
+  height: 220px;
+}
+
+.portfolio-chart-summary {
+  margin-bottom: 10px;
+}
+
+.portfolio-chart-summary strong {
+  font-size: 13px;
+}
+
+.performance-legend {
+  gap: 14px;
+  margin-top: 14px;
+  padding-top: 14px;
+}
+
+.performance-legend-item {
+  min-width: 0;
+}
+
+.performance-legend-item > div {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.performance-legend-item:last-child > div {
+  align-items: flex-end;
+}
+
+.performance-legend-item span {
+  font-size: 10px;
+}
+
+.performance-legend-item strong {
+  font-size: 12px;
+}
+
+.legend-line {
+  width: 18px;
+}
+
   .page-header {
     flex-direction: column;
     align-items: flex-start;
