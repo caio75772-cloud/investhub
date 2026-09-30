@@ -37,6 +37,11 @@ function Dashboard() {
 const [benchmarkSelecionado, setBenchmarkSelecionado] =
   useState('IBOV')
 
+  const [
+  benchmarkGraficoAberto,
+  setBenchmarkGraficoAberto,
+] = useState(false)
+
   const [benchmarkAberto, setBenchmarkAberto] =
   useState(false)
 
@@ -1332,6 +1337,8 @@ const pontosGraficoBenchmark =
       vs.
     </span>
 
+    
+
     <div className="benchmark-dropdown">
   <button
     type="button"
@@ -1393,6 +1400,7 @@ const pontosGraficoBenchmark =
     </div>
   )}
 </div>
+
   </div>
 </article>
 <article className="stat-card">
@@ -1548,6 +1556,7 @@ const pontosGraficoBenchmark =
 
   </div>
 
+<div className="performance-controls">
   <div className="benchmark-dropdown">
     <button
       type="button"
@@ -1609,6 +1618,72 @@ const pontosGraficoBenchmark =
       </div>
     )}
   </div>
+
+<div className="benchmark-dropdown">
+  <button
+    type="button"
+    className="benchmark-trigger"
+    onClick={() =>
+      setBenchmarkGraficoAberto(
+        (aberto) => !aberto,
+      )
+    }
+  >
+    <span>
+      {benchmarkSelecionado === 'IBOV'
+        ? 'IBOVESPA'
+        : benchmarkSelecionado === 'CDI'
+          ? 'CDI'
+          : benchmarkSelecionado === 'SP500'
+            ? 'S&P 500'
+            : 'NASDAQ 100'}
+    </span>
+
+    <ChevronDown
+      size={14}
+      className={
+        benchmarkGraficoAberto
+          ? 'benchmark-chevron open'
+          : 'benchmark-chevron'
+      }
+    />
+  </button>
+
+  {benchmarkGraficoAberto && (
+    <div className="benchmark-menu">
+      {[
+        ['IBOV', 'IBOVESPA'],
+        ['CDI', 'CDI'],
+        ['SP500', 'S&P 500'],
+        ['NASDAQ', 'NASDAQ 100'],
+      ].map(([valor, nome]) => (
+        <button
+          type="button"
+          key={valor}
+          className={
+            benchmarkSelecionado === valor
+              ? 'benchmark-option selected'
+              : 'benchmark-option'
+          }
+          onClick={() => {
+            setBenchmarkSelecionado(valor)
+            setBenchmarkGraficoAberto(false)
+          }}
+        >
+          <span>{nome}</span>
+
+          {benchmarkSelecionado === valor && (
+            <span className="benchmark-check">
+              ✓
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  )}
+</div>
+</div>
+
 </div>
   
 

@@ -555,6 +555,20 @@ overflow: hidden;
   margin-bottom: 22px;
 }
 
+.performance-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.performance-controls .benchmark-dropdown {
+  min-width: 130px;
+}
+
+.performance-controls .benchmark-trigger {
+  width: 100%;
+}
+
 .performance-tab {
   padding: 10px 18px;
   border: 1px solid #1d2a38;
@@ -1824,6 +1838,22 @@ overflow: hidden;
   width: 100%;
   gap: 8px;
   margin-bottom: 18px;
+}
+
+.performance-controls {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.performance-controls .benchmark-dropdown {
+  width: 100%;
+  min-width: 0;
+}
+
+.performance-controls .benchmark-trigger {
+  width: 100%;
 }
 
 .performance-tab {
