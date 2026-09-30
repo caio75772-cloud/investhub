@@ -995,9 +995,20 @@ const larguraGrafico = 820
 const alturaGrafico = 260
 const margemGrafico = 18
 
+const dadosGraficoExibidos =
+  modoGrafico === 'rentabilidade'
+    ? dadosRentabilidadeGrafico.map((ponto) => ({
+        data: ponto.data,
+        valor: ponto.rentabilidade,
+      }))
+    : dadosGrafico.map((ponto) => ({
+        data: ponto.data,
+        valor: ponto.valor,
+      }))
+
 const valoresGrafico =
-  dadosRentabilidadeGrafico.map(
-    (ponto) => ponto.rentabilidade,
+  dadosGraficoExibidos.map(
+    (ponto) => ponto.valor,
   )
 
 const minimoGrafico =
@@ -1011,16 +1022,19 @@ const maximoGrafico =
     : 0
 
 const intervaloGrafico =
-  Math.max(maximoGrafico - minimoGrafico, 1)
+  Math.max(
+    maximoGrafico - minimoGrafico,
+    1,
+  )
 
 const divisorGrafico =
   Math.max(
-    dadosRentabilidadeGrafico.length - 1,
+    dadosGraficoExibidos.length - 1,
     1,
   )
 
 const pontosGrafico =
-  dadosRentabilidadeGrafico
+  dadosGraficoExibidos
     .map((ponto, index) => {
       const x =
         margemGrafico +
@@ -1031,7 +1045,7 @@ const pontosGrafico =
       const y =
         margemGrafico +
         (1 -
-          (ponto.rentabilidade -
+          (ponto.valor -
             minimoGrafico) /
             intervaloGrafico) *
           (alturaGrafico -
@@ -1040,6 +1054,7 @@ const pontosGrafico =
       return `${x},${y}`
     })
     .join(' ')
+
   return (
     <main className="content">
       <header className="page-header">
@@ -1335,7 +1350,11 @@ const pontosGrafico =
           <div className="panel-header">
   <div>
     <p className="panel-label">CARTEIRA</p>
-    <h3>Rentabilidade da carteira</h3>
+    <h3>
+  {modoGrafico === 'rentabilidade'
+    ? 'Rentabilidade da carteira'
+    : 'Evolução patrimonial'}
+</h3>
 
     {rentabilidadePeriodoGrafico != null && (
   <div className="period-return">
@@ -1451,26 +1470,49 @@ const pontosGrafico =
   <div className="portfolio-chart">
     <div className="portfolio-chart-summary">
   <div>
-    <span>Início do período</span>
-    <strong>0,00%</strong>
+    <span>
+      {modoGrafico === 'rentabilidade'
+        ? 'Base do período'
+        : 'Patrimônio inicial'}
+    </span>
+
+    <strong>
+      {modoGrafico === 'rentabilidade'
+        ? '0,00%'
+        : formatarReal(
+            dadosGrafico[0]?.valor ?? 0,
+          )}
+    </strong>
   </div>
 
   <div>
-    <span>Final do período</span>
+    <span>
+      {modoGrafico === 'rentabilidade'
+        ? 'Final do período'
+        : 'Patrimônio final'}
+    </span>
 
     <strong
       className={
-        rentabilidadePeriodoGrafico != null &&
-        rentabilidadePeriodoGrafico >= 0
-          ? 'positive-text'
-          : 'negative-text'
+        modoGrafico === 'rentabilidade' &&
+        rentabilidadePeriodoGrafico != null
+          ? rentabilidadePeriodoGrafico >= 0
+            ? 'positive-text'
+            : 'negative-text'
+          : ''
       }
     >
-      {rentabilidadePeriodoGrafico != null
-        ? `${rentabilidadePeriodoGrafico >= 0 ? '+' : ''}${rentabilidadePeriodoGrafico
-            .toFixed(2)
-            .replace('.', ',')}%`
-        : '—'}
+      {modoGrafico === 'rentabilidade'
+        ? rentabilidadePeriodoGrafico != null
+          ? `${rentabilidadePeriodoGrafico >= 0 ? '+' : ''}${rentabilidadePeriodoGrafico
+              .toFixed(2)
+              .replace('.', ',')}%`
+          : '—'
+        : formatarReal(
+            dadosGrafico[
+              dadosGrafico.length - 1
+            ]?.valor ?? 0,
+          )}
     </strong>
   </div>
 </div>
