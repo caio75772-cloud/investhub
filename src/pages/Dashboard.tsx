@@ -1356,24 +1356,51 @@ const pontosGrafico =
     : 'Evolução patrimonial'}
 </h3>
 
-    {rentabilidadePeriodoGrafico != null && (
+    {modoGrafico === 'rentabilidade' ? (
+  rentabilidadePeriodoGrafico != null && (
+    <div className="period-return">
+      <span>Rentabilidade no período</span>
+
+      <strong
+        className={
+          rentabilidadePeriodoGrafico >= 0
+            ? 'positive-text'
+            : 'negative-text'
+        }
+      >
+        {rentabilidadePeriodoGrafico >= 0 ? '+' : ''}
+        {rentabilidadePeriodoGrafico
+          .toFixed(2)
+          .replace('.', ',')}%
+      </strong>
+    </div>
+  )
+) : dadosGrafico.length > 1 ? (
   <div className="period-return">
-    <span>Rentabilidade no período</span>
+    <span>Variação patrimonial</span>
 
     <strong
       className={
-        rentabilidadePeriodoGrafico >= 0
+        dadosGrafico[dadosGrafico.length - 1].valor -
+          dadosGrafico[0].valor >=
+        0
           ? 'positive-text'
           : 'negative-text'
       }
     >
-      {rentabilidadePeriodoGrafico >= 0 ? '+' : ''}
-      {rentabilidadePeriodoGrafico
-        .toFixed(2)
-        .replace('.', ',')}%
+      {dadosGrafico[dadosGrafico.length - 1].valor -
+        dadosGrafico[0].valor >=
+      0
+        ? '+'
+        : ''}
+      {formatarReal(
+        dadosGrafico[dadosGrafico.length - 1].valor -
+          dadosGrafico[0].valor,
+      )}
     </strong>
   </div>
-)}
+) : null}
+
   </div>
 
   <div className="benchmark-dropdown">
