@@ -1744,6 +1744,65 @@ const pontosGraficoBenchmark =
 ).toLocaleDateString('pt-BR')}
       </span>
     </div>
+
+{modoGrafico === 'rentabilidade' && (
+  <div className="performance-legend">
+    <div className="performance-legend-item">
+      <span className="legend-line portfolio"></span>
+
+      <div>
+        <span>Carteira</span>
+
+        <strong
+          className={
+            rentabilidadePeriodoGrafico != null &&
+            rentabilidadePeriodoGrafico >= 0
+              ? 'positive-text'
+              : 'negative-text'
+          }
+        >
+          {rentabilidadePeriodoGrafico != null
+            ? `${rentabilidadePeriodoGrafico >= 0 ? '+' : ''}${rentabilidadePeriodoGrafico
+                .toFixed(2)
+                .replace('.', ',')}%`
+            : '—'}
+        </strong>
+      </div>
+    </div>
+
+    <div className="performance-legend-item">
+      <span className="legend-line benchmark"></span>
+
+      <div>
+        <span>
+          {benchmarkSelecionado === 'IBOV'
+            ? 'Ibovespa'
+            : benchmarkSelecionado === 'CDI'
+              ? 'CDI'
+              : benchmarkSelecionado === 'SP500'
+                ? 'S&P 500 (BRL)'
+                : 'Nasdaq 100 (BRL)'}
+        </span>
+
+        <strong
+          className={
+            rentabilidadeBenchmark != null &&
+            rentabilidadeBenchmark >= 0
+              ? 'positive-text'
+              : 'negative-text'
+          }
+        >
+          {rentabilidadeBenchmark != null
+            ? `${rentabilidadeBenchmark >= 0 ? '+' : ''}${rentabilidadeBenchmark
+                .toFixed(2)
+                .replace('.', ',')}%`
+            : '—'}
+        </strong>
+      </div>
+    </div>
+  </div>
+)}
+
   </div>
 )}
         </article>
