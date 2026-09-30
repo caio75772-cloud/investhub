@@ -1006,10 +1006,61 @@ const dadosGraficoExibidos =
         valor: ponto.valor,
       }))
 
-const valoresGrafico =
-  dadosGraficoExibidos.map(
+const dadosBenchmarkGrafico =
+  modoGrafico === 'rentabilidade' &&
+  benchmarkSelecionado !== 'CDI' &&
+  pontosBenchmarkComparaveis.length > 1
+    ? (() => {
+        const primeiro =
+          pontosBenchmarkComparaveis[0]
+
+        const precoBase =
+          primeiro.adjustedClose ??
+          primeiro.close
+
+        if (
+          !Number.isFinite(precoBase) ||
+          precoBase <= 0
+        ) {
+          return []
+        }
+
+        return pontosBenchmarkComparaveis
+          .map((ponto) => {
+            const preco =
+              ponto.adjustedClose ??
+              ponto.close
+
+            if (!Number.isFinite(preco)) {
+              return null
+            }
+
+            return {
+              data: ponto.date,
+              valor:
+                (preco / precoBase - 1) *
+                100,
+            }
+          })
+          .filter(
+            (
+              ponto,
+            ): ponto is {
+              data: number
+              valor: number
+            } => ponto !== null,
+          )
+      })()
+    : []
+
+const valoresGrafico = [
+  ...dadosGraficoExibidos.map(
     (ponto) => ponto.valor,
-  )
+  ),
+  ...dadosBenchmarkGrafico.map(
+    (ponto) => ponto.valor,
+  ),
+]
 
 const minimoGrafico =
   valoresGrafico.length > 0
@@ -1039,6 +1090,34 @@ const pontosGrafico =
       const x =
         margemGrafico +
         (index / divisorGrafico) *
+          (larguraGrafico -
+            margemGrafico * 2)
+
+      const y =
+        margemGrafico +
+        (1 -
+          (ponto.valor -
+            minimoGrafico) /
+            intervaloGrafico) *
+          (alturaGrafico -
+            margemGrafico * 2)
+
+      return `${x},${y}`
+    })
+    .join(' ')
+
+const divisorBenchmark =
+  Math.max(
+    dadosBenchmarkGrafico.length - 1,
+    1,
+  )
+
+const pontosGraficoBenchmark =
+  dadosBenchmarkGrafico
+    .map((ponto, index) => {
+      const x =
+        margemGrafico +
+        (index / divisorBenchmark) *
           (larguraGrafico -
             margemGrafico * 2)
 
@@ -1549,6 +1628,20 @@ const pontosGrafico =
       role="img"
       aria-label="Rentabilidade da carteira"
     >
+{modoGrafico === 'rentabilidade' &&
+  pontosGraficoBenchmark && (
+    <polyline
+      points={pontosGraficoBenchmark}
+      fill="none"
+      stroke="#8293a8"
+      strokeWidth="2"
+      strokeDasharray="7 7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      opacity="0.8"
+    />
+  )}
+
       <polyline
         points={pontosGrafico}
         fill="none"
