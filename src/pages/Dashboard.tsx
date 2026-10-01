@@ -1468,7 +1468,7 @@ const posicaoTooltip =
 
         return {
           left: Math.min(
-            68,
+            58,
             Math.max(3, percentualX),
           ),
           top: percentualY,
