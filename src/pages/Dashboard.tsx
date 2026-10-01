@@ -705,6 +705,23 @@ const hoje = Math.floor(
         return
       }
 
+      if (dataAtual === hoje) {
+  const variacaoAtivo =
+    (precoAtual / precoAnterior - 1) * 100
+
+  console.log('DEBUG ÚLTIMO DIA', {
+    ticker: posicao.ticker,
+    quantidade,
+    precoAnterior,
+    precoAtual,
+    variacaoAtivo:
+      `${variacaoAtivo.toFixed(2)}%`,
+    impactoFinanceiro:
+      quantidade *
+      (precoAtual - precoAnterior),
+  })
+}
+
       patrimonioBase +=
         quantidade * precoAnterior
 
