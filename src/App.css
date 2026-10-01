@@ -741,6 +741,21 @@ overflow: hidden;
   letter-spacing: -0.4px;
   }
 
+  .chart-tooltip {
+  min-width: 135px;
+  max-width: 145px;
+  padding: 9px 10px;
+}
+
+.chart-tooltip-date {
+  font-size: 10px;
+}
+
+.chart-tooltip-row {
+  gap: 12px;
+  font-size: 9px;
+}
+
   .patrimonio-total-value {
   font-size: 16px;
   letter-spacing: -0.5px;

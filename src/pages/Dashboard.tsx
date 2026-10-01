@@ -1433,9 +1433,9 @@ const posicaoTooltip =
   marcadorSelecionado
     ? {
         left: Math.min(
-          85,
+          80,
           Math.max(
-            15,
+            20,
             (marcadorSelecionado.x /
               larguraGrafico) *
               100,
