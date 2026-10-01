@@ -1462,7 +1462,7 @@ const posicaoTooltip =
         }
 
         const translateY =
-          percentualY < 40
+          percentualY < 55
             ? '12px'
             : 'calc(-100% - 12px)'
 
@@ -2058,7 +2058,7 @@ disabled={bloqueado}
   </div>
 )}
 
-<div className="chart-interaction-area"></div>
+
 <div className="chart-interaction-area">
     <svg
   viewBox={`0 0 ${larguraGrafico} ${alturaGrafico}`}
