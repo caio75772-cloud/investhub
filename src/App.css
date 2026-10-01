@@ -1910,7 +1910,8 @@ overflow: hidden;
 }
 
 .portfolio-chart svg {
-  height: 220px;
+  width: 100%;
+  height: 260px;
 }
 
 .portfolio-chart-summary {

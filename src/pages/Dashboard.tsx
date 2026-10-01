@@ -1089,12 +1089,6 @@ const intervaloGrafico =
     1,
   )
 
-  console.log('ESCALA GRÁFICO', {
-  minimoGrafico,
-  maximoGrafico,
-  intervaloGrafico,
-})
-
   const dataInicialGrafico =
   dadosGraficoExibidos[0]?.data ?? 0
 
@@ -1855,6 +1849,7 @@ const datasEixoGrafico = Array.from(
 
     <svg
       viewBox={`0 0 ${larguraGrafico} ${alturaGrafico}`}
+      preserveAspectRatio="none"
       role="img"
       aria-label="Rentabilidade da carteira"
     >
