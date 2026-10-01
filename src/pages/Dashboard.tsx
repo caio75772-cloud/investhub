@@ -1244,6 +1244,52 @@ const marcadorBenchmark = (() => {
   return { x, y }
 })()
 
+const quantidadeMarcadoresEixo =
+  periodoGrafico === '12mo'
+    ? 5
+    : periodoGrafico === '6mo'
+      ? 4
+      : periodoGrafico === '3mo'
+        ? 3
+        : 2
+
+const mesesEixo = [
+  'Jan',
+  'Fev',
+  'Mar',
+  'Abr',
+  'Mai',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Set',
+  'Out',
+  'Nov',
+  'Dez',
+]
+
+const datasEixoGrafico = Array.from(
+  { length: quantidadeMarcadoresEixo },
+  (_, index) => {
+    const proporcao =
+      quantidadeMarcadoresEixo > 1
+        ? index /
+          (quantidadeMarcadoresEixo - 1)
+        : 0
+
+    const timestamp =
+      dataInicialGrafico +
+      (dataFinalGrafico - dataInicialGrafico) *
+        proporcao
+
+    const data = new Date(timestamp * 1000)
+
+    return `${mesesEixo[data.getUTCMonth()]}/${String(
+      data.getUTCFullYear(),
+    ).slice(-2)}`
+  },
+)
+
   return (
     <main className="content">
       <header className="page-header">
@@ -1889,20 +1935,14 @@ const marcadorBenchmark = (() => {
     </svg>
 
     <div className="portfolio-chart-dates">
-      <span>
-        {new Date(
-  dadosRentabilidadeGrafico[0].data * 1000,
-).toLocaleDateString('pt-BR')}
+  {datasEixoGrafico.map(
+    (data, index) => (
+      <span key={`${data}-${index}`}>
+        {data}
       </span>
-
-      <span>
-        {new Date(
-  dadosRentabilidadeGrafico[
-    dadosRentabilidadeGrafico.length - 1
-  ].data * 1000,
-).toLocaleDateString('pt-BR')}
-      </span>
-    </div>
+    ),
+  )}
+</div>
 
 {modoGrafico === 'rentabilidade' && (
   <div className="performance-legend">
