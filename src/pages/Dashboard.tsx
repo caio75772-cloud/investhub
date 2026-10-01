@@ -1089,6 +1089,12 @@ const intervaloGrafico =
     1,
   )
 
+  console.log('ESCALA GRÁFICO', {
+  minimoGrafico,
+  maximoGrafico,
+  intervaloGrafico,
+})
+
   const dataInicialGrafico =
   dadosGraficoExibidos[0]?.data ?? 0
 
