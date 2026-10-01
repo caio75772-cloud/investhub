@@ -1462,7 +1462,7 @@ const posicaoTooltip =
         }
 
         const translateY =
-          percentualY < 55
+          percentualY < 40
             ? '12px'
             : 'calc(-100% - 12px)'
 
