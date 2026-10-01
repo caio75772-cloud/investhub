@@ -734,6 +734,15 @@ overflow: hidden;
 .chart-tooltip-row .negative-text {
   color: #ef6262;
 }
+.chart-interaction-area {
+  position: relative;
+  width: 100%;
+}
+
+.chart-interaction-area svg {
+  display: block;
+  width: 100%;
+}
 
 @media (max-width: 700px) {
   .stats-grid > .stat-card:first-child h2 {
@@ -839,15 +848,7 @@ overflow: hidden;
   max-width: 100%;
 }
 
-.chart-interaction-area {
-  position: relative;
-  width: 100%;
-}
 
-.chart-interaction-area svg {
-  display: block;
-  width: 100%;
-}
 
 .chart-tooltip {
   position: absolute;
