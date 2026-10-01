@@ -1879,7 +1879,7 @@ overflow: hidden;
 
 .portfolio-chart svg {
   width: 100%;
-  height: 260px;
+  height: clamp(240px, 27vw, 330px);
   display: block;
 }
 
@@ -2026,7 +2026,7 @@ overflow: hidden;
 
 .portfolio-chart svg {
   width: 100%;
-  height: 260px;
+  height: 320px;
 }
 
 .portfolio-chart-summary {
