@@ -406,8 +406,7 @@ const normalizarData = (timestamp: number) => {
           ]
 
     serie.pontos.forEach((ponto) => {
-      const preco =
-        ponto.adjustedClose ?? ponto.close
+      const preco = ponto.close
 
       if (!Number.isFinite(preco)) return
 
@@ -543,8 +542,7 @@ const dadosRentabilidadeGrafico = (() => {
     const mapa = new Map<number, number>()
 
     serie.pontos.forEach((ponto) => {
-      const preco =
-        ponto.adjustedClose ?? ponto.close
+      const preco = ponto.close
 
       if (!Number.isFinite(preco)) {
         return
