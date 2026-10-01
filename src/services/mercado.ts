@@ -125,37 +125,65 @@ export async function buscarHistoricoAtivo(
   ticker: string,
   periodo: PeriodoHistorico,
 ): Promise<SerieHistorica> {
-  try {
-    const resposta = await fetch(
-      `/api/historico?ticker=${encodeURIComponent(
-        ticker,
-      )}&periodo=${encodeURIComponent(periodo)}`,
-    )
+  const tickerNormalizado =
+    ticker.trim().toUpperCase()
 
-    if (!resposta.ok) {
-      return {
-        ticker,
-        pontos: [],
+  const totalTentativas = 3
+
+  for (
+    let tentativa = 1;
+    tentativa <= totalTentativas;
+    tentativa += 1
+  ) {
+    try {
+      const resposta = await fetch(
+        `/api/historico?ticker=${encodeURIComponent(
+          tickerNormalizado,
+        )}&periodo=${encodeURIComponent(periodo)}`,
+      )
+
+      if (resposta.ok) {
+        const dados = await resposta.json()
+
+        const pontos =
+          dados.results?.[0]?.data
+            ?.historicalDataPrice ?? []
+
+        if (pontos.length > 0) {
+          return {
+            ticker: tickerNormalizado,
+            pontos,
+          }
+        }
+      } else {
+        console.warn(
+          `Tentativa ${tentativa} falhou para ${tickerNormalizado}:`,
+          resposta.status,
+        )
       }
+    } catch (erro) {
+      console.warn(
+        `Tentativa ${tentativa} falhou para ${tickerNormalizado}:`,
+        erro,
+      )
     }
 
-    const dados = await resposta.json()
-
-    return {
-      ticker,
-      pontos:
-        dados.results?.[0]?.data
-          ?.historicalDataPrice ?? [],
+    if (tentativa < totalTentativas) {
+      await new Promise((resolve) =>
+        setTimeout(
+          resolve,
+          tentativa * 1000,
+        ),
+      )
     }
-  } catch (erro) {
-    console.error(
-      `Erro ao buscar histórico de ${ticker}:`,
-      erro,
-    )
+  }
 
-    return {
-      ticker,
-      pontos: [],
-    }
+  console.error(
+    `Não foi possível carregar histórico de ${tickerNormalizado} após ${totalTentativas} tentativas.`,
+  )
+
+  return {
+    ticker: tickerNormalizado,
+    pontos: [],
   }
 }

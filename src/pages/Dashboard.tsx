@@ -516,6 +516,19 @@ const dadosRentabilidadeGrafico = (() => {
     return []
   }
 
+  const historicoCompletoRentabilidade =
+  posicoes.every((posicao) =>
+    historico.some(
+      (serie) =>
+        serie.ticker === posicao.ticker &&
+        serie.pontos.length > 0,
+    ),
+  )
+
+if (!historicoCompletoRentabilidade) {
+  return []
+}
+
   const normalizarDataRentabilidade = (
     timestamp: number,
   ) => {
