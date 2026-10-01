@@ -1431,21 +1431,39 @@ const marcadorSelecionado =
 
 const posicaoTooltip =
   marcadorSelecionado
-    ? {
-        left: Math.min(
-          68,
-          Math.max(
-            20,
-            (marcadorSelecionado.x /
-              larguraGrafico) *
-              100,
-          ),
-        ),
-        top:
+    ? (() => {
+        const percentualX =
+          (marcadorSelecionado.x /
+            larguraGrafico) *
+          100
+
+        const percentualY =
           (marcadorSelecionado.y /
             alturaGrafico) *
-          100,
-      }
+          100
+
+        let translateX = '-50%'
+
+        if (percentualX < 25) {
+          translateX = '0%'
+        } else if (percentualX > 75) {
+          translateX = '-100%'
+        }
+
+        const translateY =
+          percentualY < 35
+            ? '12px'
+            : 'calc(-100% - 12px)'
+
+        return {
+          left: Math.min(
+            97,
+            Math.max(3, percentualX),
+          ),
+          top: percentualY,
+          transform: `translate(${translateX}, ${translateY})`,
+        }
+      })()
     : null
 
   return (
@@ -2179,13 +2197,15 @@ disabled={bloqueado}
     {modoGrafico === 'rentabilidade' &&
   pontoSelecionado &&
   posicaoTooltip && (
+    
     <div
-      className="chart-tooltip"
-      style={{
-        left: `${posicaoTooltip.left}%`,
-        top: `${posicaoTooltip.top}%`,
-      }}
-    >
+  className="chart-tooltip"
+  style={{
+    left: `${posicaoTooltip.left}%`,
+    top: `${posicaoTooltip.top}%`,
+    transform: posicaoTooltip.transform,
+  }}
+>
       <strong className="chart-tooltip-date">
         {new Date(
           pontoSelecionado.data * 1000,
