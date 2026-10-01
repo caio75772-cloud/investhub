@@ -1187,6 +1187,57 @@ const pontosGraficoBenchmark =
     })
     .join(' ')
 
+    const ultimoPontoCarteira =
+  dadosGraficoExibidos[
+    dadosGraficoExibidos.length - 1
+  ]
+
+const marcadorCarteira =
+  ultimoPontoCarteira
+    ? {
+        x: calcularXGrafico(
+          ultimoPontoCarteira.data,
+        ),
+        y:
+          margemGrafico +
+          (1 -
+            (ultimoPontoCarteira.valor -
+              minimoGrafico) /
+              intervaloGrafico) *
+            (alturaGrafico -
+              margemGrafico * 2),
+      }
+    : null
+
+const marcadorBenchmark = (() => {
+  if (!pontosGraficoBenchmark) {
+    return null
+  }
+
+  const ultimoPonto =
+    pontosGraficoBenchmark
+      .trim()
+      .split(' ')
+      .at(-1)
+
+  if (!ultimoPonto) {
+    return null
+  }
+
+  const [x, y] = ultimoPonto
+    .split(',')
+    .map(Number)
+
+  if (
+    !Number.isFinite(x) ||
+    !Number.isFinite(y)
+  ) {
+    return null
+  }
+
+  return { x, y }
+})()
+
   return (
     <main className="content">
       <header className="page-header">
@@ -1715,54 +1766,31 @@ const pontosGraficoBenchmark =
   </div>
 ) : (
   <div className="portfolio-chart">
-    <div className="portfolio-chart-summary">
-  <div>
-    <span>
-      {modoGrafico === 'rentabilidade'
-        ? 'Base do período'
-        : 'Patrimônio inicial'}
-    </span>
+    {modoGrafico === 'patrimonio' && (
+  <div className="portfolio-chart-summary">
+    <div>
+      <span>Patrimônio inicial</span>
 
-    <strong>
-      {modoGrafico === 'rentabilidade'
-        ? '0,00%'
-        : formatarReal(
-            dadosGrafico[0]?.valor ?? 0,
-          )}
-    </strong>
+      <strong>
+        {formatarReal(
+          dadosGrafico[0]?.valor ?? 0,
+        )}
+      </strong>
+    </div>
+
+    <div>
+      <span>Patrimônio final</span>
+
+      <strong>
+        {formatarReal(
+          dadosGrafico[
+            dadosGrafico.length - 1
+          ]?.valor ?? 0,
+        )}
+      </strong>
+    </div>
   </div>
-
-  <div>
-    <span>
-      {modoGrafico === 'rentabilidade'
-        ? 'Final do período'
-        : 'Patrimônio final'}
-    </span>
-
-    <strong
-      className={
-        modoGrafico === 'rentabilidade' &&
-        rentabilidadePeriodoGrafico != null
-          ? rentabilidadePeriodoGrafico >= 0
-            ? 'positive-text'
-            : 'negative-text'
-          : ''
-      }
-    >
-      {modoGrafico === 'rentabilidade'
-        ? rentabilidadePeriodoGrafico != null
-          ? `${rentabilidadePeriodoGrafico >= 0 ? '+' : ''}${rentabilidadePeriodoGrafico
-              .toFixed(2)
-              .replace('.', ',')}%`
-          : '—'
-        : formatarReal(
-            dadosGrafico[
-              dadosGrafico.length - 1
-            ]?.valor ?? 0,
-          )}
-    </strong>
-  </div>
-</div>
+)}
 
     <svg
       viewBox={`0 0 ${larguraGrafico} ${alturaGrafico}`}
@@ -1780,7 +1808,7 @@ const pontosGraficoBenchmark =
   >
     <stop
       offset="0%"
-      stopColor="rgba(0, 214, 163, 0.28)"
+      stopColor="rgba(0, 214, 163, 0.20)"
     />
     <stop
       offset="100%"
@@ -1801,25 +1829,57 @@ const pontosGraficoBenchmark =
 {modoGrafico === 'rentabilidade' &&
   pontosGraficoBenchmark && (
     <polyline
-      points={pontosGraficoBenchmark}
-      fill="none"
-      stroke="#8293a8"
-      strokeWidth="2"
-      strokeDasharray="7 7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      opacity="0.8"
-    />
+  points={pontosGraficoBenchmark}
+  fill="none"
+  stroke="#8391a5"
+  strokeWidth="1.5"
+  strokeDasharray="5 5"
+  strokeLinecap="round"
+  strokeLinejoin="round"
+  opacity="0.55"
+/>
   )}
 
       <polyline
         points={pontosGrafico}
         fill="none"
         stroke="currentColor"
-        strokeWidth="3"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+      {marcadorCarteira && (
+  <>
+    <circle
+      cx={marcadorCarteira.x}
+      cy={marcadorCarteira.y}
+      r="7"
+      fill="rgba(0, 214, 163, 0.18)"
+    />
+
+    <circle
+      cx={marcadorCarteira.x}
+      cy={marcadorCarteira.y}
+      r="3.5"
+      fill="#00d6a3"
+      stroke="#eafff8"
+      strokeWidth="1.5"
+    />
+  </>
+)}
+
+{modoGrafico === 'rentabilidade' &&
+  marcadorBenchmark && (
+    <circle
+      cx={marcadorBenchmark.x}
+      cy={marcadorBenchmark.y}
+      r="3.5"
+      fill="#8293a8"
+      stroke="#f4f7fa"
+      strokeWidth="1.5"
+      opacity="0.9"
+    />
+  )}
     </svg>
 
     <div className="portfolio-chart-dates">
