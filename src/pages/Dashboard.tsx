@@ -91,6 +91,11 @@ const [periodoAberto, setPeriodoAberto] =
     'rentabilidade',
   )
 
+  const [
+  indicePontoSelecionado,
+  setIndicePontoSelecionado,
+] = useState<number | null>(null)
+
 const [historico, setHistorico] = useState<SerieHistorica[]>([])
 const [carregandoHistorico, setCarregandoHistorico] = useState(false)
 useEffect(() => {
@@ -1341,6 +1346,70 @@ const datasEixoGrafico = Array.from(
   },
 )
 
+const selecionarPontoGrafico = (
+  clientX: number,
+  elemento: SVGSVGElement,
+) => {
+  if (dadosGraficoExibidos.length === 0) {
+    return
+  }
+
+  const retangulo =
+    elemento.getBoundingClientRect()
+
+  const xNoSvg =
+    ((clientX - retangulo.left) /
+      retangulo.width) *
+    larguraGrafico
+
+  let indiceMaisProximo = 0
+  let menorDistancia = Infinity
+
+  dadosGraficoExibidos.forEach(
+    (ponto, index) => {
+      const xPonto =
+        calcularXGrafico(ponto.data)
+
+      const distancia = Math.abs(
+        xPonto - xNoSvg,
+      )
+
+      if (distancia < menorDistancia) {
+        menorDistancia = distancia
+        indiceMaisProximo = index
+      }
+    },
+  )
+
+  setIndicePontoSelecionado(
+    indiceMaisProximo,
+  )
+}
+
+const pontoSelecionado =
+  indicePontoSelecionado != null
+    ? dadosGraficoExibidos[
+        indicePontoSelecionado
+      ]
+    : null
+
+const marcadorSelecionado =
+  pontoSelecionado
+    ? {
+        x: calcularXGrafico(
+          pontoSelecionado.data,
+        ),
+        y:
+          margemGrafico +
+          (1 -
+            (pontoSelecionado.valor -
+              minimoGrafico) /
+              intervaloGrafico) *
+            (alturaGrafico -
+              margemGrafico * 2),
+      }
+    : null
+
   return (
     <main className="content">
       <header className="page-header">
@@ -1923,11 +1992,40 @@ disabled={bloqueado}
 )}
 
     <svg
-      viewBox={`0 0 ${larguraGrafico} ${alturaGrafico}`}
-      preserveAspectRatio="none"
-      role="img"
-      aria-label="Rentabilidade da carteira"
-    >
+  viewBox={`0 0 ${larguraGrafico} ${alturaGrafico}`}
+  preserveAspectRatio="none"
+  role="img"
+  aria-label="Rentabilidade da carteira"
+  onMouseMove={(event) =>
+    selecionarPontoGrafico(
+      event.clientX,
+      event.currentTarget,
+    )
+  }
+  onMouseLeave={() =>
+    setIndicePontoSelecionado(null)
+  }
+  onTouchStart={(event) => {
+    const toque = event.touches[0]
+
+    if (toque) {
+      selecionarPontoGrafico(
+        toque.clientX,
+        event.currentTarget,
+      )
+    }
+  }}
+  onTouchMove={(event) => {
+    const toque = event.touches[0]
+
+    if (toque) {
+      selecionarPontoGrafico(
+        toque.clientX,
+        event.currentTarget,
+      )
+    }
+  }}
+>
 
 <defs>
   <linearGradient
@@ -1979,6 +2077,33 @@ disabled={bloqueado}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+
+{marcadorSelecionado && (
+  <>
+    <line
+      x1={marcadorSelecionado.x}
+      x2={marcadorSelecionado.x}
+      y1={margemGrafico}
+      y2={
+        alturaGrafico -
+        margemGrafico
+      }
+      stroke="rgba(255,255,255,0.20)"
+      strokeWidth="1"
+      strokeDasharray="4 4"
+    />
+
+    <circle
+      cx={marcadorSelecionado.x}
+      cy={marcadorSelecionado.y}
+      r="6"
+      fill="#00d6a3"
+      stroke="#ffffff"
+      strokeWidth="2"
+    />
+  </>
+)}
+
       {marcadorCarteira && (
   <>
     <circle
