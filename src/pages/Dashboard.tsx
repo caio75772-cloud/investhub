@@ -1126,7 +1126,7 @@ const intervaloBrutoGrafico =
   )
 
 const folgaVerticalGrafico =
-  intervaloBrutoGrafico * 0.12
+  intervaloBrutoGrafico * 0.08
 
 const minimoGrafico =
   minimoBrutoGrafico -
