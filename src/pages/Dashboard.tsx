@@ -565,10 +565,16 @@ const dadosRentabilidadeGrafico = (() => {
     )
   })
 
-  const hoje =
-    normalizarDataRentabilidade(
-      Math.floor(Date.now() / 1000),
-    )
+  const agora = new Date()
+
+const hoje = Math.floor(
+  Date.UTC(
+    agora.getFullYear(),
+    agora.getMonth(),
+    agora.getDate(),
+    12,
+  ) / 1000,
+)
 
   const cotacoesAtuaisCompletas =
     posicoes.every(
