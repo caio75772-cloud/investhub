@@ -1073,15 +1073,33 @@ const valoresGrafico = [
   ),
 ]
 
-const minimoGrafico =
+const minimoBrutoGrafico =
   valoresGrafico.length > 0
     ? Math.min(...valoresGrafico)
     : 0
 
-const maximoGrafico =
+const maximoBrutoGrafico =
   valoresGrafico.length > 0
     ? Math.max(...valoresGrafico)
     : 0
+
+const intervaloBrutoGrafico =
+  Math.max(
+    maximoBrutoGrafico -
+      minimoBrutoGrafico,
+    1,
+  )
+
+const folgaVerticalGrafico =
+  intervaloBrutoGrafico * 0.12
+
+const minimoGrafico =
+  minimoBrutoGrafico -
+  folgaVerticalGrafico
+
+const maximoGrafico =
+  maximoBrutoGrafico +
+  folgaVerticalGrafico
 
 const intervaloGrafico =
   Math.max(
