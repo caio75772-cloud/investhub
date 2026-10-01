@@ -1250,7 +1250,7 @@ const quantidadeMarcadoresEixo =
     : periodoGrafico === '6mo'
       ? 4
       : periodoGrafico === '3mo'
-        ? 3
+        ? 4
         : 2
 
 const mesesEixo = [
@@ -1279,10 +1279,13 @@ const datasEixoGrafico = Array.from(
 
     const timestamp =
       dataInicialGrafico +
-      (dataFinalGrafico - dataInicialGrafico) *
+      (dataFinalGrafico -
+        dataInicialGrafico) *
         proporcao
 
-    const data = new Date(timestamp * 1000)
+    const data = new Date(
+      timestamp * 1000,
+    )
 
     return `${mesesEixo[data.getUTCMonth()]}/${String(
       data.getUTCFullYear(),
