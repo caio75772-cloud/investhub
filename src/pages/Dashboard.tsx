@@ -1410,6 +1410,44 @@ const marcadorSelecionado =
       }
     : null
 
+    const pontoBenchmarkSelecionado =
+  modoGrafico === 'rentabilidade' &&
+  pontoSelecionado &&
+  dadosBenchmarkGrafico.length > 0
+    ? dadosBenchmarkGrafico.reduce(
+        (maisProximo, ponto) =>
+          Math.abs(
+            ponto.data -
+              pontoSelecionado.data,
+          ) <
+          Math.abs(
+            maisProximo.data -
+              pontoSelecionado.data,
+          )
+            ? ponto
+            : maisProximo,
+      )
+    : null
+
+const posicaoTooltip =
+  marcadorSelecionado
+    ? {
+        left: Math.min(
+          85,
+          Math.max(
+            15,
+            (marcadorSelecionado.x /
+              larguraGrafico) *
+              100,
+          ),
+        ),
+        top:
+          (marcadorSelecionado.y /
+            alturaGrafico) *
+          100,
+      }
+    : null
+
   return (
     <main className="content">
       <header className="page-header">
@@ -2137,6 +2175,65 @@ disabled={bloqueado}
     />
   )}
     </svg>
+
+    {modoGrafico === 'rentabilidade' &&
+  pontoSelecionado &&
+  posicaoTooltip && (
+    <div
+      className="chart-tooltip"
+      style={{
+        left: `${posicaoTooltip.left}%`,
+        top: `${posicaoTooltip.top}%`,
+      }}
+    >
+      <strong className="chart-tooltip-date">
+        {new Date(
+          pontoSelecionado.data * 1000,
+        ).toLocaleDateString('pt-BR')}
+      </strong>
+
+      <div className="chart-tooltip-row">
+        <span>Carteira</span>
+
+        <strong className="positive-text">
+          {pontoSelecionado.valor >= 0
+            ? '+'
+            : ''}
+          {pontoSelecionado.valor
+            .toFixed(2)
+            .replace('.', ',')}
+          %
+        </strong>
+      </div>
+
+      {pontoBenchmarkSelecionado && (
+        <div className="chart-tooltip-row">
+          <span>
+            {benchmarkSelecionado === 'IBOV'
+              ? 'Ibovespa'
+              : benchmarkSelecionado ===
+                  'SP500'
+                ? 'S&P 500'
+                : benchmarkSelecionado ===
+                    'NASDAQ'
+                  ? 'Nasdaq 100'
+                  : 'Benchmark'}
+          </span>
+
+          <strong>
+            {pontoBenchmarkSelecionado.valor >=
+            0
+              ? '+'
+              : ''}
+            {pontoBenchmarkSelecionado.valor
+              .toFixed(2)
+              .replace('.', ',')}
+            %
+          </strong>
+        </div>
+      )}
+    </div>
+  )}
 
     <div className="portfolio-chart-dates">
   {datasEixoGrafico.map(
