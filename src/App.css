@@ -731,6 +731,10 @@ overflow: hidden;
   color: #00d6a3;
 }
 
+.chart-tooltip-row .negative-text {
+  color: #ef6262;
+}
+
 @media (max-width: 700px) {
   .stats-grid > .stat-card:first-child h2 {
   font-size: 17px;
