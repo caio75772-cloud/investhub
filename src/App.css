@@ -839,6 +839,16 @@ overflow: hidden;
   max-width: 100%;
 }
 
+.chart-interaction-area {
+  position: relative;
+  width: 100%;
+}
+
+.chart-interaction-area svg {
+  display: block;
+  width: 100%;
+}
+
 .chart-tooltip {
   position: absolute;
   z-index: 30;

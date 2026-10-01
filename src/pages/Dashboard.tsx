@@ -1142,6 +1142,17 @@ const intervaloGrafico =
     1,
   )
 
+  const yZeroGrafico =
+  minimoGrafico <= 0 &&
+  maximoGrafico >= 0
+    ? margemGrafico +
+      (1 -
+        (0 - minimoGrafico) /
+          intervaloGrafico) *
+        (alturaGrafico -
+          margemGrafico * 2)
+    : null
+
   const dataInicialGrafico =
   dadosGraficoExibidos[0]?.data ?? 0
 
@@ -2047,6 +2058,8 @@ disabled={bloqueado}
   </div>
 )}
 
+<div className="chart-interaction-area"></div>
+<div className="chart-interaction-area">
     <svg
   viewBox={`0 0 ${larguraGrafico} ${alturaGrafico}`}
   preserveAspectRatio="none"
@@ -2101,6 +2114,19 @@ disabled={bloqueado}
     />
   </linearGradient>
 </defs>
+
+{modoGrafico === 'rentabilidade' &&
+  yZeroGrafico != null && (
+    <line
+      x1={margemGrafico}
+      x2={larguraGrafico - margemGrafico}
+      y1={yZeroGrafico}
+      y2={yZeroGrafico}
+      stroke="rgba(255,255,255,0.12)"
+      strokeWidth="1"
+      strokeDasharray="3 5"
+    />
+  )}
 
 {modoGrafico === 'rentabilidade' &&
   areaGrafico && (
@@ -2197,7 +2223,7 @@ disabled={bloqueado}
     {modoGrafico === 'rentabilidade' &&
   pontoSelecionado &&
   posicaoTooltip && (
-    
+
     <div
   className="chart-tooltip"
   style={{
@@ -2266,6 +2292,8 @@ disabled={bloqueado}
       )}
     </div>
   )}
+
+  </div>
 
     <div className="portfolio-chart-dates">
   {datasEixoGrafico.map(
