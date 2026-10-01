@@ -1454,25 +1454,25 @@ const posicaoTooltip =
           100
 
         let translateX = '-50%'
+        let left = percentualX
 
         if (percentualX < 25) {
           translateX = '0%'
+          left = Math.max(3, percentualX)
         } else if (percentualX > 75) {
           translateX = '-100%'
+          left = Math.min(97, percentualX)
         }
 
-        const translateY =
-          percentualY < 72
-            ? '12px'
-            : 'calc(-100% - 12px)'
+        const top = Math.min(
+          70,
+          Math.max(30, percentualY),
+        )
 
         return {
-          left: Math.min(
-            68,
-            Math.max(3, percentualX),
-          ),
-          top: percentualY,
-          transform: `translate(${translateX}, ${translateY})`,
+          left,
+          top,
+          transform: `translate(${translateX}, -50%)`,
         }
       })()
     : null
