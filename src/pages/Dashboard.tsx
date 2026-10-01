@@ -2195,7 +2195,13 @@ disabled={bloqueado}
       <div className="chart-tooltip-row">
         <span>Carteira</span>
 
-        <strong className="positive-text">
+        <strong
+  className={
+    pontoSelecionado.valor >= 0
+      ? 'positive-text'
+      : 'negative-text'
+  }
+>
           {pontoSelecionado.valor >= 0
             ? '+'
             : ''}
@@ -2220,7 +2226,13 @@ disabled={bloqueado}
                   : 'Benchmark'}
           </span>
 
-          <strong>
+          <strong
+  className={
+    pontoBenchmarkSelecionado.valor >= 0
+      ? 'positive-text'
+      : 'negative-text'
+  }
+>
             {pontoBenchmarkSelecionado.valor >=
             0
               ? '+'
