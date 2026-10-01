@@ -32,6 +32,8 @@ import {
 } from '../services/calculos'
 
 function Dashboard() {
+  const historicoExpandidoAtivo = false
+
   const navigate = useNavigate()
 
 const [benchmarkSelecionado, setBenchmarkSelecionado] =
@@ -79,7 +81,7 @@ const [cotacoes, setCotacoes] = useState<
 const [cotacoesCarregadas, setCotacoesCarregadas] =
   useState(false)
 
-const [periodoGrafico, setPeriodoGrafico] = useState('12mo')
+const [periodoGrafico, setPeriodoGrafico] = useState('3mo')
 
 const [periodoAberto, setPeriodoAberto] =
   useState(false)
@@ -1740,25 +1742,52 @@ const datasEixoGrafico = Array.from(
     {periodoAberto && (
       <div className="benchmark-menu">
         {[
-          ['12mo', '12 meses'],
-          ['6mo', '6 meses'],
-          ['3mo', '3 meses'],
-          ['1mo', '1 mês'],
-        ].map(([valor, nome]) => (
+  {
+    valor: '1mo',
+    nome: '1 mês',
+    bloqueado: false,
+  },
+  {
+    valor: '3mo',
+    nome: '3 meses',
+    bloqueado: false,
+  },
+  {
+    valor: '6mo',
+    nome: '6 meses',
+    bloqueado: !historicoExpandidoAtivo,
+  },
+  {
+    valor: '12mo',
+    nome: '12 meses',
+    bloqueado: !historicoExpandidoAtivo,
+  },
+].map(({ valor, nome, bloqueado }) => (
+
           <button
             type="button"
-            key={valor}
+key={valor}
+disabled={bloqueado}
             className={
               periodoGrafico === valor
                 ? 'benchmark-option selected'
                 : 'benchmark-option'
             }
             onClick={() => {
-              setPeriodoGrafico(valor)
-              setPeriodoAberto(false)
-            }}
+  if (bloqueado) return
+
+  setPeriodoGrafico(valor)
+  setPeriodoAberto(false)
+}}
           >
-            <span>{nome}</span>
+            <span>
+  {nome}
+  {bloqueado && (
+    <small className="period-plan-lock">
+      Plano pago
+    </small>
+  )}
+</span>
 
             {periodoGrafico === valor && (
               <span className="benchmark-check">

@@ -143,24 +143,29 @@ export async function buscarHistoricoAtivo(
       )
 
       if (resposta.ok) {
-        const dados = await resposta.json()
+  const dados = await resposta.json()
 
-        const pontos =
-          dados.results?.[0]?.data
-            ?.historicalDataPrice ?? []
+  const pontos =
+    dados.results?.[0]?.data
+      ?.historicalDataPrice ?? []
 
-        if (pontos.length > 0) {
-          return {
-            ticker: tickerNormalizado,
-            pontos,
-          }
-        }
-      } else {
-        console.warn(
-          `Tentativa ${tentativa} falhou para ${tickerNormalizado}:`,
-          resposta.status,
-        )
-      }
+  if (pontos.length > 0) {
+    return {
+      ticker: tickerNormalizado,
+      pontos,
+    }
+  }
+} else {
+  console.warn(
+    `Tentativa ${tentativa} falhou para ${tickerNormalizado}:`,
+    resposta.status,
+  )
+
+  if (resposta.status === 400) {
+    break
+  }
+}
+
     } catch (erro) {
       console.warn(
         `Tentativa ${tentativa} falhou para ${tickerNormalizado}:`,

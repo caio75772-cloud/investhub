@@ -2143,3 +2143,15 @@ overflow: hidden;
   color: #71869b;
   font-size: 11px;
 }
+
+.benchmark-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.period-plan-lock {
+  margin-left: 8px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #71839a;
+}
