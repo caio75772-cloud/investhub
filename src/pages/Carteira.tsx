@@ -970,14 +970,44 @@ const percentual =
                       key={posicao.ticker}
                     >
                       <div className="allocation-info">
-                        <strong>
-                          {posicao.ticker}
-                        </strong>
+  <div className="allocation-asset">
+    <div className="allocation-asset-logo">
+      {cotacoes[posicao.ticker]?.logoUrl ? (
+        <img
+          src={cotacoes[posicao.ticker].logoUrl ?? ''}
+          alt={posicao.ticker}
+          onError={(event) => {
+            event.currentTarget.style.display = 'none'
 
-                        <span>
-                          {percentual.toFixed(1)}%
-                        </span>
-                      </div>
+            const fallback =
+              event.currentTarget
+                .nextElementSibling as HTMLElement | null
+
+            if (fallback) {
+              fallback.style.display = 'flex'
+            }
+          }}
+        />
+      ) : null}
+
+      <span
+        style={{
+          display: cotacoes[posicao.ticker]?.logoUrl
+            ? 'none'
+            : 'flex',
+        }}
+      >
+        {posicao.ticker.slice(0, 4)}
+      </span>
+    </div>
+
+    <strong>{posicao.ticker}</strong>
+  </div>
+
+  <span>
+    {percentual.toFixed(1)}%
+  </span>
+</div>
 
                       <div className="allocation-bar">
                         <div

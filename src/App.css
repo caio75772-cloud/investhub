@@ -2598,3 +2598,42 @@ overflow: hidden;
     max-width: 100%;
   }
 }
+
+.allocation-asset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.allocation-asset-logo {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+  border: 1px solid #223346;
+  background: #101a27;
+}
+
+.allocation-asset-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.allocation-asset-logo span {
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+
+  color: #8ca0b5;
+  font-size: 7px;
+  font-weight: 700;
+}
