@@ -2253,9 +2253,7 @@ disabled={bloqueado}
       : 'negative-text'
   }
 >
-          {pontoSelecionado.valor >= 0
-            ? '+'
-            : ''}
+          
           {modoGrafico === 'rentabilidade'
   ? `${pontoSelecionado.valor >= 0 ? '+' : ''}${pontoSelecionado.valor
       .toFixed(2)
