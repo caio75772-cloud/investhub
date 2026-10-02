@@ -744,7 +744,21 @@ const resultadoRealizado = posicaoMovimentacoes
               </div>
             ) : (
               <div className="positions-list">
-                {posicoes.map((posicao) => {
+                {[...posicoes]
+  .sort((a, b) => {
+    const valorA =
+      a.quantidade *
+      (cotacoes[a.ticker]?.preco ??
+        a.precoMedio)
+
+    const valorB =
+      b.quantidade *
+      (cotacoes[b.ticker]?.preco ??
+        b.precoMedio)
+
+    return valorB - valorA
+  })
+  .map((posicao) => {
                   const cotacaoAtual =
   cotacoes[posicao.ticker]?.preco
 const variacaoAtual =
