@@ -776,8 +776,38 @@ const rentabilidadeAtivo =
                     >
                       <div className="position-main">
                         <div className="asset-symbol">
-                          {posicao.ticker.slice(0, 2)}
-                        </div>
+  {cotacoes[posicao.ticker]?.logoUrl ? (
+    <>
+      <img
+        src={cotacoes[posicao.ticker].logoUrl ?? ''}
+        alt={posicao.ticker}
+        className="asset-symbol-logo"
+        onError={(event) => {
+          event.currentTarget.style.display = 'none'
+
+          const fallback =
+            event.currentTarget
+              .nextElementSibling as HTMLElement | null
+
+          if (fallback) {
+            fallback.style.display = 'flex'
+          }
+        }}
+      />
+
+      <span
+        className="asset-symbol-fallback"
+        style={{ display: 'none' }}
+      >
+        {posicao.ticker.slice(0, 4)}
+      </span>
+    </>
+  ) : (
+    <span className="asset-symbol-fallback">
+      {posicao.ticker.slice(0, 4)}
+    </span>
+  )}
+</div>
 
                         <div>
                           <strong>{posicao.ticker}</strong>
