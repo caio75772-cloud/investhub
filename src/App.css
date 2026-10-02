@@ -2428,3 +2428,127 @@ overflow: hidden;
   font-size: 10px;
   text-align: right;
 }
+
+@media (max-width: 700px) {
+  .positions-card {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .positions-card-header {
+    padding: 18px 16px;
+  }
+
+  .positions-card-header h3 {
+    font-size: 17px;
+  }
+
+  .positions-card-header p {
+    max-width: 250px;
+    font-size: 11px;
+  }
+
+  .positions-table-head {
+    display: none;
+  }
+
+  .positions-row {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+
+    grid-template-areas:
+      "asset asset"
+      "value weight"
+      "change result";
+
+    gap: 14px 18px;
+    width: 100%;
+    padding: 16px;
+  }
+
+  .positions-asset {
+    grid-area: asset;
+    width: 100%;
+  }
+
+  .positions-value {
+    grid-area: value;
+  }
+
+  .positions-change {
+    grid-area: change;
+  }
+
+  .positions-result {
+    grid-area: result;
+  }
+
+  .positions-weight {
+    grid-area: weight;
+  }
+
+  .positions-value,
+  .positions-change,
+  .positions-result {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .positions-value::before {
+    content: "Valor atual";
+  }
+
+  .positions-change::before {
+    content: "Variação dia";
+  }
+
+  .positions-result::before {
+    content: "Resultado";
+  }
+
+  .positions-value::before,
+  .positions-change::before,
+  .positions-result::before,
+  .positions-weight::before {
+    color: #71869b;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .positions-weight {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 8px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .positions-weight::before {
+    content: "Peso";
+    grid-column: 1 / -1;
+  }
+
+  .positions-weight-bar {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .positions-weight span {
+    min-width: auto;
+  }
+
+  .positions-asset-info {
+    min-width: 0;
+  }
+
+  .positions-asset-info span {
+    max-width: 100%;
+  }
+}
