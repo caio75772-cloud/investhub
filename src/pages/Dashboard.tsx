@@ -2394,11 +2394,14 @@ disabled={bloqueado}
     </div>
   ) : (
     <div className="positions-table">
+
       <div className="positions-table-head">
-        <span>ATIVO</span>
-        <span>VALOR ATUAL</span>
-        <span>PESO</span>
-      </div>
+  <span>ATIVO</span>
+  <span>VALOR ATUAL</span>
+  <span>VARIAÇÃO DIA</span>
+  <span>RESULTADO</span>
+  <span>PESO</span>
+</div>
 
       {posicoes
         .map((posicao) => {
@@ -2406,6 +2409,18 @@ disabled={bloqueado}
             posicao.quantidade *
             (cotacoes[posicao.ticker]?.preco ??
               posicao.precoMedio)
+
+              const precoAtual =
+  cotacoes[posicao.ticker]?.preco ??
+  posicao.precoMedio
+
+const variacaoDia =
+  cotacoes[posicao.ticker]?.variacao ?? null
+
+const resultadoPercentual =
+  posicao.precoMedio > 0
+    ? ((precoAtual / posicao.precoMedio) - 1) * 100
+    : 0
 
           const percentual =
             calcularAlocacao(
@@ -2415,10 +2430,13 @@ disabled={bloqueado}
             )
 
           return {
-            posicao,
-            valorAtualPosicao,
-            percentual,
-          }
+  posicao,
+  valorAtualPosicao,
+  percentual,
+  variacaoDia,
+  resultadoPercentual,
+}
+
         })
         .sort(
           (a, b) =>
@@ -2426,11 +2444,13 @@ disabled={bloqueado}
             a.valorAtualPosicao,
         )
         .map(
-          ({
-            posicao,
-            valorAtualPosicao,
-            percentual,
-          }) => (
+  ({
+    posicao,
+    valorAtualPosicao,
+    percentual,
+    variacaoDia,
+    resultadoPercentual,
+  }) => (
             <div
               className="positions-row"
               key={posicao.ticker}
@@ -2449,6 +2469,36 @@ disabled={bloqueado}
               <strong className="positions-value">
                 {formatarReal(valorAtualPosicao)}
               </strong>
+
+              <div
+  className={
+    variacaoDia == null
+      ? 'positions-change neutral-text'
+      : variacaoDia >= 0
+        ? 'positions-change positive-text'
+        : 'positions-change negative-text'
+  }
+>
+  {variacaoDia == null
+    ? '—'
+    : `${variacaoDia >= 0 ? '↗ +' : '↘ '}${variacaoDia
+        .toFixed(2)
+        .replace('.', ',')}%`}
+</div>
+
+<div
+  className={
+    resultadoPercentual >= 0
+      ? 'positions-result positive-text'
+      : 'positions-result negative-text'
+  }
+>
+  {resultadoPercentual >= 0 ? '↗ +' : '↘ '}
+  {resultadoPercentual
+    .toFixed(2)
+    .replace('.', ',')}%
+</div>
+              
 
               <div className="positions-weight">
                 <div className="positions-weight-bar">
