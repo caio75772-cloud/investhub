@@ -2390,10 +2390,6 @@ disabled={bloqueado}
   <div className="allocation-empty">
     <p>Carregando alocação...</p>
   </div>
-) : cotacoesIncompletas ? (
-  <div className="allocation-empty">
-    <p>Dados parciais — alocação indisponível</p>
-  </div>
 ) : (
   <div className="allocation-list">
     {posicoes.map((posicao) => {
