@@ -2461,9 +2461,40 @@ const resultadoPercentual =
               key={posicao.ticker}
             >
               <div className="positions-asset">
+
                 <div className="positions-asset-icon">
-                  {posicao.ticker.slice(0, 4)}
-                </div>
+  {cotacoes[posicao.ticker]?.logoUrl ? (
+    <>
+      <img
+        src={cotacoes[posicao.ticker].logoUrl ?? ''}
+        alt={posicao.ticker}
+        className="positions-asset-logo"
+        onError={(event) => {
+          event.currentTarget.style.display = 'none'
+
+          const fallback =
+            event.currentTarget
+              .nextElementSibling as HTMLElement | null
+
+          if (fallback) {
+            fallback.style.display = 'flex'
+          }
+        }}
+      />
+
+      <span
+        className="positions-asset-fallback"
+        style={{ display: 'none' }}
+      >
+        {posicao.ticker.slice(0, 4)}
+      </span>
+    </>
+  ) : (
+    <span className="positions-asset-fallback">
+      {posicao.ticker.slice(0, 4)}
+    </span>
+  )}
+</div>
 
                 <div className="positions-asset-info">
                   <strong>{posicao.ticker}</strong>

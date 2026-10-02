@@ -1,6 +1,7 @@
 export type Cotacao = {
   preco: number
   variacao: number
+  logoUrl: string | null
 }
 
 export type PontoHistorico = {
@@ -94,10 +95,14 @@ export async function buscarCotacoes(
       }
 
       const cotacao: Cotacao = {
-        preco: ativo.regularMarketPrice,
-        variacao:
-          ativo.regularMarketChangePercent ?? 0,
-      }
+  preco: ativo.regularMarketPrice,
+  variacao:
+    ativo.regularMarketChangePercent ?? 0,
+
+  logoUrl:
+    ativo.logourl ??
+    `https://icons.brapi.dev/icons/${ticker.toUpperCase()}.svg`,
+}
 
       resultado[ticker.toUpperCase()] = cotacao
 
