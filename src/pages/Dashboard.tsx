@@ -2405,6 +2405,9 @@ disabled={bloqueado}
   (cotacoes[posicao.ticker]?.preco ??
     posicao.precoMedio)
 
+    const cotacaoIndisponivel =
+  cotacoes[posicao.ticker]?.preco == null
+
       return (
         <div
           className="allocation-item"
@@ -2428,6 +2431,18 @@ disabled={bloqueado}
     >
       {formatarReal(valorAtualPosicao)}
     </span>
+
+{cotacaoIndisponivel && (
+  <small
+    style={{
+      color: '#d8a84e',
+      fontSize: '9px',
+    }}
+  >
+    usando preço médio
+  </small>
+)}
+
   </div>
 
   <span>
