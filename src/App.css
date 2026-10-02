@@ -500,7 +500,7 @@ overflow: hidden;
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 0.8fr);
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 
