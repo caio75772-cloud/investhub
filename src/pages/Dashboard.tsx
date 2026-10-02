@@ -2370,100 +2370,110 @@ disabled={bloqueado}
 )}
         </article>
 
-        <article className="panel side-panel">
-          <div className="panel-header">
-            <div>
-              <p className="panel-label">ALOCAÇÃO</p>
-              <h3>Por ativo</h3>
-            </div>
-          </div>
-
-          {posicoes.length === 0 ? (
-  <div className="allocation-empty">
-    <div className="allocation-circle">
-      <span>0%</span>
+<article className="panel side-panel positions-card">
+  <div className="positions-card-header">
+    <div>
+      <h3>Principais posições</h3>
+      <p>
+        Maiores exposições da carteira por valor de mercado
+      </p>
     </div>
 
-    <p>Nenhum ativo cadastrado</p>
-  </div>
-) : !cotacoesCarregadas ? (
-  <div className="allocation-empty">
-    <p>Carregando alocação...</p>
-  </div>
-) : (
-  <div className="allocation-list">
-    {posicoes.map((posicao) => {
-      const percentual =
-  calcularAlocacao(
-    posicao,
-    patrimonioTotal,
-    cotacoes,
-  )
-
-  const valorAtualPosicao =
-  posicao.quantidade *
-  (cotacoes[posicao.ticker]?.preco ??
-    posicao.precoMedio)
-
-    const cotacaoIndisponivel =
-  cotacoes[posicao.ticker]?.preco == null
-
-      return (
-        <div
-          className="allocation-item"
-          key={posicao.ticker}
-        >
-          <div className="allocation-info">
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '4px',
-    }}
-  >
-    <strong>{posicao.ticker}</strong>
-
-    <span
-      style={{
-        fontSize: '11px',
-        color: '#71869b',
-      }}
-    >
-      {formatarReal(valorAtualPosicao)}
-    </span>
-
-{cotacaoIndisponivel && (
-  <small
-    style={{
-      color: '#d8a84e',
-      fontSize: '9px',
-    }}
-  >
-    usando preço médio
-  </small>
-)}
-
+    <button type="button" className="positions-card-link">
+      Ver todas →
+    </button>
   </div>
 
-  <span>
-    {percentual.toFixed(1).replace('.', ',')}%
-  </span>
-</div>
+  {posicoes.length === 0 ? (
+    <div className="allocation-empty">
+      <p>Nenhum ativo cadastrado</p>
+    </div>
+  ) : !cotacoesCarregadas ? (
+    <div className="allocation-empty">
+      <p>Carregando posições...</p>
+    </div>
+  ) : (
+    <div className="positions-table">
+      <div className="positions-table-head">
+        <span>ATIVO</span>
+        <span>VALOR ATUAL</span>
+        <span>PESO</span>
+      </div>
 
-          <div className="allocation-bar">
+      {posicoes
+        .map((posicao) => {
+          const valorAtualPosicao =
+            posicao.quantidade *
+            (cotacoes[posicao.ticker]?.preco ??
+              posicao.precoMedio)
+
+          const percentual =
+            calcularAlocacao(
+              posicao,
+              patrimonioTotal,
+              cotacoes,
+            )
+
+          return {
+            posicao,
+            valorAtualPosicao,
+            percentual,
+          }
+        })
+        .sort(
+          (a, b) =>
+            b.valorAtualPosicao -
+            a.valorAtualPosicao,
+        )
+        .map(
+          ({
+            posicao,
+            valorAtualPosicao,
+            percentual,
+          }) => (
             <div
-              className="allocation-fill"
-              style={{
-                width: `${percentual}%`,
-              }}
-            />
-          </div>
-        </div>
-      )
-    })}
-  </div>
-)}
-        </article>
+              className="positions-row"
+              key={posicao.ticker}
+            >
+              <div className="positions-asset">
+                <div className="positions-asset-icon">
+                  {posicao.ticker.slice(0, 4)}
+                </div>
+
+                <div className="positions-asset-info">
+                  <strong>{posicao.ticker}</strong>
+                  <span>{posicao.nome}</span>
+                </div>
+              </div>
+
+              <strong className="positions-value">
+                {formatarReal(valorAtualPosicao)}
+              </strong>
+
+              <div className="positions-weight">
+                <div className="positions-weight-bar">
+                  <div
+                    className="positions-weight-fill"
+                    style={{
+                      width: `${percentual}%`,
+                    }}
+                  />
+                </div>
+
+                <span>
+                  {percentual
+                    .toFixed(1)
+                    .replace('.', ',')}
+                  %
+                </span>
+              </div>
+            </div>
+          ),
+        )}
+    </div>
+  )}
+</article>
+        
       </section>
     </main>
   )

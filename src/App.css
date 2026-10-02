@@ -2270,3 +2270,152 @@ overflow: hidden;
   font-weight: 600;
   color: #71839a;
 }
+
+/* PRINCIPAIS POSIÇÕES */
+
+.positions-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.positions-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.positions-card-header h3 {
+  margin: 0;
+  color: #f4f7fa;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.positions-card-header p {
+  margin: 5px 0 0;
+  color: #71869b;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.positions-card-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #00d6a3;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.positions-table {
+  width: 100%;
+}
+
+.positions-table-head,
+.positions-row {
+  display: grid;
+  grid-template-columns:
+    minmax(130px, 1.5fr)
+    minmax(90px, 1fr)
+    minmax(110px, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.positions-table-head {
+  padding: 12px 22px;
+  color: #617287;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.positions-row {
+  padding: 14px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.positions-row:last-child {
+  border-bottom: none;
+}
+
+.positions-asset {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.positions-asset-icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #223346;
+  border-radius: 10px;
+  background: #101a27;
+  color: #8ca0b5;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.positions-asset-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.positions-asset-info strong {
+  color: #f4f7fa;
+  font-size: 12px;
+}
+
+.positions-asset-info span {
+  overflow: hidden;
+  color: #71869b;
+  font-size: 10px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.positions-value {
+  color: #f4f7fa;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.positions-weight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.positions-weight-bar {
+  flex: 1;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #172432;
+}
+
+.positions-weight-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #00d6a3;
+}
+
+.positions-weight span {
+  min-width: 38px;
+  color: #8ca0b5;
+  font-size: 10px;
+  text-align: right;
+}
