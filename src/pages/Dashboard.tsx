@@ -2222,8 +2222,7 @@ disabled={bloqueado}
   )}
     </svg>
 
-    {modoGrafico === 'rentabilidade' &&
-  pontoSelecionado &&
+    {pontoSelecionado &&
   posicaoTooltip && (
 
     <div
@@ -2241,7 +2240,11 @@ disabled={bloqueado}
       </strong>
 
       <div className="chart-tooltip-row">
-        <span>Carteira</span>
+        <span>
+  {modoGrafico === 'rentabilidade'
+    ? 'Carteira'
+    : 'Patrimônio'}
+</span>
 
         <strong
   className={
@@ -2253,10 +2256,11 @@ disabled={bloqueado}
           {pontoSelecionado.valor >= 0
             ? '+'
             : ''}
-          {pontoSelecionado.valor
-            .toFixed(2)
-            .replace('.', ',')}
-          %
+          {modoGrafico === 'rentabilidade'
+  ? `${pontoSelecionado.valor >= 0 ? '+' : ''}${pontoSelecionado.valor
+      .toFixed(2)
+      .replace('.', ',')}%`
+  : formatarReal(pontoSelecionado.valor)}
         </strong>
       </div>
 
