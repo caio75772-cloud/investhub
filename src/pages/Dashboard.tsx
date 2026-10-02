@@ -2106,7 +2106,7 @@ disabled={bloqueado}
   >
     <stop
       offset="0%"
-      stopColor="rgba(0, 214, 163, 0.20)"
+      stopColor="rgba(0, 214, 163, 0.14)"
     />
     <stop
       offset="100%"
