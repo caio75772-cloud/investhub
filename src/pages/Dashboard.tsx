@@ -2379,9 +2379,14 @@ disabled={bloqueado}
       </p>
     </div>
 
-    <button type="button" className="positions-card-link">
-      Ver todas →
-    </button>
+    <button
+  type="button"
+  className="positions-card-link"
+  onClick={() => navigate('/carteira')}
+>
+  Ver todas →
+</button>
+
   </div>
 
   {posicoes.length === 0 ? (
