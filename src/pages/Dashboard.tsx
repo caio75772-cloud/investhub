@@ -1936,6 +1936,7 @@ disabled={bloqueado}
     )}
   </div>
 
+{modoGrafico === 'rentabilidade' && (
 <div className="benchmark-dropdown">
   <button
     type="button"
@@ -1999,8 +2000,9 @@ disabled={bloqueado}
     </div>
   )}
 </div>
-</div>
+)}
 
+</div>
 </div>
   
 
