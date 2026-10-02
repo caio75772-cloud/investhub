@@ -2130,14 +2130,13 @@ disabled={bloqueado}
     />
   )}
 
-{modoGrafico === 'rentabilidade' &&
-  areaGrafico && (
-    <path
-      d={areaGrafico}
-      fill="url(#portfolioGradient)"
-      stroke="none"
-    />
-  )}
+{areaGrafico && (
+  <path
+    d={areaGrafico}
+    fill="url(#portfolioGradient)"
+    stroke="none"
+  />
+)}
 
 {modoGrafico === 'rentabilidade' &&
   pontosGraficoBenchmark && (
