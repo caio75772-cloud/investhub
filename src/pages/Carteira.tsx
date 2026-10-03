@@ -1058,10 +1058,10 @@ const percentual =
                 </p>
 
                 <h2>
-                  {etapa === 1
-                    ? 'Adicionar ativo'
-                    : ativoSelecionado?.ticker}
-                </h2>
+  {etapa === 1
+    ? 'Adicionar ativo'
+    : 'Adicionar posição'}
+</h2>
               </div>
 
               <button
