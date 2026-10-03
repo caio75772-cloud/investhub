@@ -1116,9 +1116,31 @@ const percentual =
       setSugestoesAtivos([])
     }}
   >
-    <div className="asset-icon">
-      {ativo.ticker.slice(0, 2)}
-    </div>
+    <div className="asset-symbol">
+  <img
+    src={`https://icons.brapi.dev/icons/${ativo.ticker.toUpperCase()}.svg`}
+    alt={ativo.ticker}
+    className="asset-symbol-logo"
+    onError={(event) => {
+      event.currentTarget.style.display = 'none'
+
+      const fallback =
+        event.currentTarget
+          .nextElementSibling as HTMLElement | null
+
+      if (fallback) {
+        fallback.style.display = 'flex'
+      }
+    }}
+  />
+
+  <span
+    className="asset-symbol-fallback"
+    style={{ display: 'none' }}
+  >
+    {ativo.ticker.slice(0, 4)}
+  </span>
+</div>
 
     <div>
       <strong>{ativo.ticker}</strong>
