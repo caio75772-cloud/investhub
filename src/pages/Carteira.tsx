@@ -36,6 +36,12 @@ import {
   buscarAtivos,
   type AtivoBusca,
 } from '../services/ativos'
+
+import {
+  buscarProventosAtivo,
+  type Provento,
+} from '../services/proventos'
+
 type Ativo = {
   ticker: string
   nome: string
@@ -62,6 +68,20 @@ const [tickerMovimentacoes, setTickerMovimentacoes] =
   const [cotacoes, setCotacoes] = useState<
   Record<string, Cotacao>
 >({})
+
+const [proventos, setProventos] =
+  useState<Provento[]>([])
+
+const [
+  proventosDisponiveis,
+  setProventosDisponiveis,
+] = useState<boolean | null>(null)
+
+const [
+  carregandoProventos,
+  setCarregandoProventos,
+] = useState(false)
+
 const [cotacoesCarregadas, setCotacoesCarregadas] =
   useState(false)
   const [atualizandoCotacoes, setAtualizandoCotacoes] =
@@ -171,6 +191,148 @@ useEffect(() => {
     window.clearInterval(intervalo)
   }
 }, [carregarCotacoes, posicoes.length])
+
+useEffect(() => {
+  async function carregarProventosCarteira() {
+    if (posicoes.length === 0) {
+      setProventos([])
+      setProventosDisponiveis(null)
+      return
+    }
+
+    setCarregandoProventos(true)
+
+    try {
+      const datasCompra = posicoes.flatMap(
+        (posicao) => {
+          const compras =
+            posicao.movimentacoes
+              ?.filter(
+                (movimentacao) =>
+                  movimentacao.tipo === 'compra',
+              )
+              .map(
+                (movimentacao) =>
+                  movimentacao.data,
+              ) ?? []
+
+          return compras.length > 0
+            ? compras
+            : [posicao.data]
+        },
+      )
+
+      const dataInicial =
+        datasCompra.length > 0
+          ? [...datasCompra].sort()[0]
+          : dataHoje
+
+      const todosProventos: Provento[] = []
+
+      let respostasDisponiveis = 0
+
+      for (const posicao of posicoes) {
+        const resposta =
+          await buscarProventosAtivo(
+            posicao.ticker,
+            dataInicial,
+            dataHoje,
+          )
+
+        if (!resposta.disponivel) {
+          continue
+        }
+
+        respostasDisponiveis += 1
+
+        todosProventos.push(
+          ...resposta.proventos,
+        )
+      }
+
+      setProventos(todosProventos)
+
+      setProventosDisponiveis(
+        respostasDisponiveis > 0,
+      )
+    } catch (erro) {
+      console.error(
+        'Erro ao carregar proventos:',
+        erro,
+      )
+
+      setProventos([])
+      setProventosDisponiveis(false)
+    } finally {
+      setCarregandoProventos(false)
+    }
+  }
+
+  void carregarProventosCarteira()
+}, [posicoes])
+
+const totalProventosRecebidos =
+  proventos.reduce((total, provento) => {
+    if (
+      !provento.dataCom ||
+      !provento.dataPagamento ||
+      provento.dataPagamento > dataHoje
+    ) {
+      return total
+    }
+
+    const posicao = posicoes.find(
+      (item) =>
+        item.ticker === provento.ticker,
+    )
+
+    if (!posicao) {
+      return total
+    }
+
+    const movimentacoes =
+      posicao.movimentacoes &&
+      posicao.movimentacoes.length > 0
+        ? posicao.movimentacoes
+        : [
+            {
+              id: `inicial-${posicao.ticker}`,
+              tipo: 'compra' as TipoMovimentacao,
+              quantidade: posicao.quantidade,
+              preco: posicao.precoMedio,
+              data: posicao.data,
+            },
+          ]
+
+    const quantidadeNaDataCom =
+      movimentacoes.reduce(
+        (quantidadeAtual, movimentacao) => {
+          if (
+            movimentacao.data >
+            provento.dataCom!
+          ) {
+            return quantidadeAtual
+          }
+
+          return movimentacao.tipo === 'compra'
+            ? quantidadeAtual +
+                movimentacao.quantidade
+            : quantidadeAtual -
+                movimentacao.quantidade
+        },
+        0,
+      )
+
+    if (quantidadeNaDataCom <= 0) {
+      return total
+    }
+
+    return (
+      total +
+      quantidadeNaDataCom *
+        provento.valorPorAcao
+    )
+  }, 0)
 
 console.log('COTAÇÕES:', cotacoes)
 
@@ -683,7 +845,13 @@ const resultadoRealizado = posicaoMovimentacoes
             <div className="stat-top">
               <div>
                 <p>Proventos</p>
-                <h2>R$ 0,00</h2>
+                <h2>
+  {carregandoProventos
+    ? '...'
+    : proventosDisponiveis === true
+      ? formatarReal(totalProventosRecebidos)
+      : '—'}
+</h2>
               </div>
 
               <div className="stat-icon">
@@ -692,8 +860,14 @@ const resultadoRealizado = posicaoMovimentacoes
             </div>
 
             <span className="neutral-text">
-              Total recebido
-            </span>
+  {carregandoProventos
+    ? 'Carregando proventos...'
+    : proventosDisponiveis === false
+      ? 'Dados indisponíveis'
+      : proventosDisponiveis === true
+        ? 'Total recebido'
+        : 'Aguardando dados'}
+</span>
           </article>
 
           <article className="stat-card">
