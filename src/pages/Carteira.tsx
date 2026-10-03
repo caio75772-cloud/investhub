@@ -1179,13 +1179,42 @@ const percentual =
               </>
             ) : (
               <>
-                <p className="modal-description">
-                  Informe os dados da sua posição em{' '}
-                  <strong>
-                    {ativoSelecionado?.ticker}
-                  </strong>
-                  .
-                </p>
+                <div className="selected-asset-preview">
+  <div className="asset-symbol">
+    <img
+      src={`https://icons.brapi.dev/icons/${ativoSelecionado?.ticker?.toUpperCase()}.svg`}
+      alt={ativoSelecionado?.ticker}
+      className="asset-symbol-logo"
+      onError={(event) => {
+        event.currentTarget.style.display = 'none'
+
+        const fallback =
+          event.currentTarget
+            .nextElementSibling as HTMLElement | null
+
+        if (fallback) {
+          fallback.style.display = 'flex'
+        }
+      }}
+    />
+
+    <span
+      className="asset-symbol-fallback"
+      style={{ display: 'none' }}
+    >
+      {ativoSelecionado?.ticker?.slice(0, 4)}
+    </span>
+  </div>
+
+  <div>
+    <strong>{ativoSelecionado?.ticker}</strong>
+    <span>{ativoSelecionado?.nome}</span>
+  </div>
+</div>
+
+<p className="modal-description">
+  Informe os dados da sua posição.
+</p>
 
                 <div className="asset-form">
                   <label>

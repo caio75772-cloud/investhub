@@ -2637,3 +2637,32 @@ overflow: hidden;
   font-size: 7px;
   font-weight: 700;
 }
+
+.selected-asset-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 14px;
+  padding: 12px;
+
+  border: 1px solid #182735;
+  border-radius: 10px;
+  background: #09111a;
+}
+
+.selected-asset-preview > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.selected-asset-preview strong {
+  color: #f4f7fa;
+  font-size: 13px;
+}
+
+.selected-asset-preview span {
+  color: #71869b;
+  font-size: 11px;
+}
