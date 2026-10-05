@@ -2827,3 +2827,65 @@ overflow: hidden;
     grid-template-columns: 1fr;
   }
 }
+
+.asset-history {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid #182735;
+}
+
+.asset-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.asset-history-header h3 {
+  margin: 0;
+  color: #f4f7fa;
+  font-size: 15px;
+}
+
+.asset-history-header span {
+  display: block;
+  margin-top: 4px;
+  color: #71869b;
+  font-size: 10px;
+}
+
+.asset-history-header select {
+  min-width: 120px;
+  height: 40px;
+
+  padding: 0 36px 0 13px;
+
+  border: 1px solid #213246;
+  border-radius: 10px;
+
+  background: #0a131e;
+  color: #dbe5ef;
+
+  font-size: 12px;
+  font-weight: 500;
+
+  outline: none;
+  cursor: pointer;
+}
+
+.asset-history-header select:focus {
+  border-color: #00d6a3;
+}
+
+.asset-history-chart {
+  width: 100%;
+  color: #00d6a3;
+  overflow: hidden;
+}
+
+.asset-history-chart svg {
+  display: block;
+  width: 100%;
+  height: 240px;
+}
