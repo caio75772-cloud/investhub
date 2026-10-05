@@ -179,6 +179,22 @@ const pontosLinhaHistorico =
     })
     .join(' ')
 
+    const dataInicioHistorico =
+  pontosHistorico.length > 0
+    ? new Date(
+        pontosHistorico[0].data * 1000,
+      ).toLocaleDateString('pt-BR')
+    : ''
+
+const dataFimHistorico =
+  pontosHistorico.length > 0
+    ? new Date(
+        pontosHistorico[
+          pontosHistorico.length - 1
+        ].data * 1000,
+      ).toLocaleDateString('pt-BR')
+    : ''
+
   return (
     <main className="content">
       <p className="eyebrow">MERCADO</p>
@@ -368,21 +384,26 @@ const pontosLinhaHistorico =
     </p>
   ) : pontosHistorico.length > 1 ? (
     <div className="asset-history-chart">
-      <svg
-        viewBox={`0 0 ${larguraGraficoAtivo} ${alturaGraficoAtivo}`}
-        role="img"
-        aria-label={`Histórico de ${ativoSelecionado?.ticker}`}
-      >
-        <polyline
-          points={pontosLinhaHistorico}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
+  <svg
+    viewBox={`0 0 ${larguraGraficoAtivo} ${alturaGraficoAtivo}`}
+    role="img"
+    aria-label={`Histórico de ${ativoSelecionado?.ticker}`}
+  >
+    <polyline
+      points={pontosLinhaHistorico}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+
+  <div className="asset-history-dates">
+    <span>{dataInicioHistorico}</span>
+    <span>{dataFimHistorico}</span>
+  </div>
+</div>
   ) : (
     <p className="assets-search-message">
       Histórico indisponível.

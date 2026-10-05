@@ -2889,3 +2889,12 @@ overflow: hidden;
   width: 100%;
   height: 240px;
 }
+
+.asset-history-dates {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+
+  color: #71869b;
+  font-size: 10px;
+}
