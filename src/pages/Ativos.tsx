@@ -41,6 +41,16 @@ const [carregandoHistorico, setCarregandoHistorico] =
   useEffect(() => {
     const termo = busca.trim()
 
+    if (
+  ativoSelecionado &&
+  termo.toUpperCase() ===
+    ativoSelecionado.ticker.toUpperCase()
+) {
+  setResultados([])
+  setBuscando(false)
+  return
+}
+
     if (!termo) {
       setResultados([])
       setBuscando(false)
@@ -60,7 +70,7 @@ const [carregandoHistorico, setCarregandoHistorico] =
     
 
     return () => clearTimeout(timer)
-  }, [busca])
+  }, [busca, ativoSelecionado])
 
   useEffect(() => {
   async function carregarHistorico() {
