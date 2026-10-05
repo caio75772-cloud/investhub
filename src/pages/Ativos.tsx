@@ -151,12 +151,14 @@ const [carregandoCotacao, setCarregandoCotacao] =
           )}
 
         {!buscando &&
-          busca.trim() &&
-          resultados.length === 0 && (
-            <p className="assets-search-message">
-              Nenhum ativo encontrado.
-            </p>
-          )}
+  busca.trim() &&
+  resultados.length === 0 &&
+  !ativoSelecionado && (
+    <p className="assets-search-message">
+      Nenhum ativo encontrado.
+    </p>
+  )}
+  
       </section>
 
 {ativoSelecionado && (
