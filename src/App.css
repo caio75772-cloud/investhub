@@ -452,6 +452,12 @@ overflow: hidden;
   overflow-wrap: anywhere;
 }
 
+.stats-grid > .stat-card:nth-child(5) h2 {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  font-size: clamp(18px, 1.8vw, 25px);
+}
+
 .neutral-text {
   max-width: 100%;
   white-space: normal;
