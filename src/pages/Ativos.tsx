@@ -8,7 +8,9 @@ import {
 
 import {
   buscarCotacoes,
+  buscarHistoricoAtivo,
   type Cotacao,
+  type SerieHistorica,
 } from '../services/mercado'
 
 function Ativos() {
@@ -25,6 +27,15 @@ const [cotacaoSelecionada, setCotacaoSelecionada] =
   useState<Cotacao | null>(null)
 
 const [carregandoCotacao, setCarregandoCotacao] =
+  useState(false)
+
+  const [periodoHistorico, setPeriodoHistorico] =
+  useState<'1mo' | '3mo' | '6mo' | '1y'>('3mo')
+
+const [historicoAtivo, setHistoricoAtivo] =
+  useState<SerieHistorica | null>(null)
+
+const [carregandoHistorico, setCarregandoHistorico] =
   useState(false)
 
   useEffect(() => {
@@ -46,8 +57,35 @@ const [carregandoCotacao, setCarregandoCotacao] =
       setBuscando(false)
     }, 300)
 
+    
+
     return () => clearTimeout(timer)
   }, [busca])
+
+  useEffect(() => {
+  async function carregarHistorico() {
+    if (!ativoSelecionado) {
+      setHistoricoAtivo(null)
+      return
+    }
+
+    setCarregandoHistorico(true)
+
+    try {
+      const historico =
+        await buscarHistoricoAtivo(
+          ativoSelecionado.ticker,
+          periodoHistorico,
+        )
+
+      setHistoricoAtivo(historico)
+    } finally {
+      setCarregandoHistorico(false)
+    }
+  }
+
+  void carregarHistorico()
+}, [ativoSelecionado, periodoHistorico])
 
   async function selecionarAtivo(ativo: AtivoBusca) {
   setAtivoSelecionado(ativo)
@@ -65,6 +103,71 @@ const [carregandoCotacao, setCarregandoCotacao] =
   setResultados([])
   setBusca(ativo.ticker)
 }
+
+const pontosHistorico =
+  historicoAtivo?.pontos
+    .map((ponto) => ({
+      data: ponto.date,
+      valor:
+        ponto.adjustedClose ??
+        ponto.close,
+    }))
+    .filter((ponto) =>
+      Number.isFinite(ponto.valor),
+    ) ?? []
+
+const larguraGraficoAtivo = 700
+const alturaGraficoAtivo = 220
+const margemGraficoAtivo = 12
+
+const valoresHistorico =
+  pontosHistorico.map(
+    (ponto) => ponto.valor,
+  )
+
+const minimoHistorico =
+  valoresHistorico.length > 0
+    ? Math.min(...valoresHistorico)
+    : 0
+
+const maximoHistorico =
+  valoresHistorico.length > 0
+    ? Math.max(...valoresHistorico)
+    : 0
+
+const intervaloHistorico =
+  Math.max(
+    maximoHistorico - minimoHistorico,
+    1,
+  )
+
+const divisorHistorico =
+  Math.max(
+    pontosHistorico.length - 1,
+    1,
+  )
+
+const pontosLinhaHistorico =
+  pontosHistorico
+    .map((ponto, index) => {
+      const x =
+        margemGraficoAtivo +
+        (index / divisorHistorico) *
+          (larguraGraficoAtivo -
+            margemGraficoAtivo * 2)
+
+      const y =
+        margemGraficoAtivo +
+        (1 -
+          (ponto.valor -
+            minimoHistorico) /
+            intervaloHistorico) *
+          (alturaGraficoAtivo -
+            margemGraficoAtivo * 2)
+
+      return `${x},${y}`
+    })
+    .join(' ')
 
   return (
     <main className="content">
@@ -158,7 +261,7 @@ const [carregandoCotacao, setCarregandoCotacao] =
       Nenhum ativo encontrado.
     </p>
   )}
-  
+
       </section>
 
 {ativoSelecionado && (
@@ -222,6 +325,61 @@ const [carregandoCotacao, setCarregandoCotacao] =
         Cotação indisponível.
       </p>
     )}
+
+<div className="asset-history">
+  <div className="asset-history-header">
+    <div>
+      <h3>Evolução do preço</h3>
+      <span>Histórico do ativo</span>
+    </div>
+
+    <select
+      value={periodoHistorico}
+      onChange={(event) =>
+        setPeriodoHistorico(
+          event.target.value as
+            | '1mo'
+            | '3mo'
+            | '6mo'
+            | '1y',
+        )
+      }
+    >
+      <option value="1mo">1 mês</option>
+      <option value="3mo">3 meses</option>
+      <option value="6mo">6 meses</option>
+      <option value="1y">1 ano</option>
+    </select>
+  </div>
+
+  {carregandoHistorico ? (
+    <p className="assets-search-message">
+      Carregando histórico...
+    </p>
+  ) : pontosHistorico.length > 1 ? (
+    <div className="asset-history-chart">
+      <svg
+        viewBox={`0 0 ${larguraGraficoAtivo} ${alturaGraficoAtivo}`}
+        role="img"
+        aria-label={`Histórico de ${ativoSelecionado?.ticker}`}
+      >
+        <polyline
+          points={pontosLinhaHistorico}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  ) : (
+    <p className="assets-search-message">
+      Histórico indisponível.
+    </p>
+  )}
+</div>
+    
   </section>
 )}
 
