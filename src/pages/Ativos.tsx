@@ -6,12 +6,26 @@ import {
   type AtivoBusca,
 } from '../services/ativos'
 
+import {
+  buscarCotacoes,
+  type Cotacao,
+} from '../services/mercado'
+
 function Ativos() {
   const [busca, setBusca] = useState('')
   const [resultados, setResultados] =
     useState<AtivoBusca[]>([])
   const [buscando, setBuscando] =
     useState(false)
+
+    const [ativoSelecionado, setAtivoSelecionado] =
+  useState<AtivoBusca | null>(null)
+
+const [cotacaoSelecionada, setCotacaoSelecionada] =
+  useState<Cotacao | null>(null)
+
+const [carregandoCotacao, setCarregandoCotacao] =
+  useState(false)
 
   useEffect(() => {
     const termo = busca.trim()
@@ -34,6 +48,23 @@ function Ativos() {
 
     return () => clearTimeout(timer)
   }, [busca])
+
+  async function selecionarAtivo(ativo: AtivoBusca) {
+  setAtivoSelecionado(ativo)
+  setCotacaoSelecionada(null)
+  setCarregandoCotacao(true)
+
+  const cotacoes =
+    await buscarCotacoes([ativo.ticker])
+
+  setCotacaoSelecionada(
+    cotacoes[ativo.ticker.toUpperCase()] ?? null,
+  )
+
+  setCarregandoCotacao(false)
+  setResultados([])
+  setBusca(ativo.ticker)
+}
 
   return (
     <main className="content">
@@ -70,10 +101,11 @@ function Ativos() {
             <div className="assets-search-results">
               {resultados.map((ativo) => (
                 <button
-                  type="button"
-                  className="assets-search-result"
-                  key={ativo.ticker}
-                >
+  type="button"
+  className="assets-search-result"
+  key={ativo.ticker}
+  onClick={() => selecionarAtivo(ativo)}
+>
                   <div className="asset-symbol">
                     <img
                       src={`https://icons.brapi.dev/icons/${ativo.ticker.toUpperCase()}.svg`}
@@ -126,6 +158,71 @@ function Ativos() {
             </p>
           )}
       </section>
+
+{ativoSelecionado && (
+  <section className="asset-detail-card">
+    <div className="asset-detail-header">
+      <div className="asset-symbol asset-detail-logo">
+        <img
+          src={`https://icons.brapi.dev/icons/${ativoSelecionado.ticker.toUpperCase()}.svg`}
+          alt={ativoSelecionado.ticker}
+          className="asset-symbol-logo"
+        />
+      </div>
+
+      <div>
+        <h2>{ativoSelecionado.ticker}</h2>
+        <p>{ativoSelecionado.nome}</p>
+      </div>
+    </div>
+
+    {carregandoCotacao ? (
+      <p className="assets-search-message">
+        Carregando cotação...
+      </p>
+    ) : cotacaoSelecionada ? (
+      <div className="asset-detail-data">
+        <div>
+          <span>Cotação atual</span>
+          <strong>
+            {cotacaoSelecionada.preco.toLocaleString(
+              'pt-BR',
+              {
+                style: 'currency',
+                currency: 'BRL',
+              },
+            )}
+          </strong>
+        </div>
+
+        <div>
+          <span>Variação do dia</span>
+
+          <strong
+            className={
+              cotacaoSelecionada.variacao >= 0
+                ? 'positive-text'
+                : 'negative-text'
+            }
+          >
+            {cotacaoSelecionada.variacao >= 0
+              ? '+'
+              : ''}
+            {cotacaoSelecionada.variacao
+              .toFixed(2)
+              .replace('.', ',')}
+            %
+          </strong>
+        </div>
+      </div>
+    ) : (
+      <p className="assets-search-message">
+        Cotação indisponível.
+      </p>
+    )}
+  </section>
+)}
+
     </main>
   )
 }
