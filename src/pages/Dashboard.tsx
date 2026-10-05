@@ -327,12 +327,30 @@ const rentabilidade =
     patrimonioTotal,
   )
 
-  const patrimonioFechamentoAnterior =
+  const patrimonioAtualComCotacao =
   posicoes.reduce((total, posicao) => {
     const cotacao =
       cotacoes[posicao.ticker]
 
-    if (!cotacao) {
+    if (cotacao?.preco == null) {
+      return total
+    }
+
+    return (
+      total +
+      posicao.quantidade * cotacao.preco
+    )
+  }, 0)
+
+const patrimonioFechamentoAnterior =
+  posicoes.reduce((total, posicao) => {
+    const cotacao =
+      cotacoes[posicao.ticker]
+
+    if (
+      cotacao?.preco == null ||
+      !Number.isFinite(cotacao.variacao)
+    ) {
       return total
     }
 
@@ -354,7 +372,7 @@ const rentabilidade =
   }, 0)
 
 const resultadoDia =
-  patrimonioTotal -
+  patrimonioAtualComCotacao -
   patrimonioFechamentoAnterior
 
 const rentabilidadeDia =
@@ -370,6 +388,12 @@ const cotacoesIncompletas =
     (posicao) =>
       cotacoes[posicao.ticker]?.preco == null,
   )
+
+  const ativosComCotacaoDia =
+  posicoes.filter(
+    (posicao) =>
+      cotacoes[posicao.ticker]?.preco != null,
+  ).length
 
 function formatarReal(valor: number) {
   return valor.toLocaleString('pt-BR', {
@@ -1706,12 +1730,12 @@ const posicaoTooltip =
         }
       >
         {!cotacoesCarregadas
-          ? 'Carregando...'
-          : cotacoesIncompletas
-            ? '—'
-            : `${resultadoDia >= 0 ? '+' : ''}${formatarReal(
-                resultadoDia,
-              )}`}
+  ? 'Carregando...'
+  : ativosComCotacaoDia === 0
+    ? '—'
+    : `${resultadoDia >= 0 ? '+' : ''}${formatarReal(
+        resultadoDia,
+      )}`}
       </h2>
     </div>
 
@@ -1728,12 +1752,16 @@ const posicaoTooltip =
     }
   >
     {!cotacoesCarregadas
-      ? 'Carregando...'
-      : cotacoesIncompletas
-        ? 'Dados parciais'
-        : `${rentabilidadeDia >= 0 ? '+' : ''}${rentabilidadeDia
-            .toFixed(2)
-            .replace('.', ',')}% hoje`}
+  ? 'Carregando...'
+  : ativosComCotacaoDia === 0
+    ? 'Dados indisponíveis'
+    : cotacoesIncompletas
+      ? `${rentabilidadeDia >= 0 ? '+' : ''}${rentabilidadeDia
+          .toFixed(2)
+          .replace('.', ',')}% hoje • parcial`
+      : `${rentabilidadeDia >= 0 ? '+' : ''}${rentabilidadeDia
+          .toFixed(2)
+          .replace('.', ',')}% hoje`}
   </span>
 </article>
 
