@@ -2898,3 +2898,68 @@ overflow: hidden;
   color: #71869b;
   font-size: 10px;
 }
+
+.asset-history-chart {
+  position: relative;
+}
+
+.asset-history-chart svg {
+  cursor: crosshair;
+}
+
+.asset-history-guide {
+  stroke: #405469;
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  pointer-events: none;
+}
+
+.asset-history-point {
+  fill: #00d6a3;
+  stroke: #f4f7fa;
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.asset-history-tooltip {
+  position: absolute;
+  z-index: 20;
+
+  min-width: 145px;
+  padding: 11px 12px;
+
+  border: 1px solid #24394d;
+  border-radius: 10px;
+
+  background: #0a141f;
+
+  transform:
+    translate(-50%, calc(-100% - 12px));
+
+  pointer-events: none;
+}
+
+.asset-history-tooltip > strong {
+  display: block;
+  margin-bottom: 9px;
+
+  color: #f4f7fa;
+  font-size: 11px;
+}
+
+.asset-history-tooltip > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.asset-history-tooltip span {
+  color: #71869b;
+  font-size: 10px;
+}
+
+.asset-history-tooltip b {
+  color: #00d6a3;
+  font-size: 11px;
+}

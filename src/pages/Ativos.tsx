@@ -38,6 +38,11 @@ const [historicoAtivo, setHistoricoAtivo] =
 const [carregandoHistorico, setCarregandoHistorico] =
   useState(false)
 
+  const [
+  indiceHistoricoSelecionado,
+  setIndiceHistoricoSelecionado,
+] = useState<number | null>(null)
+
   useEffect(() => {
     const termo = busca.trim()
 
@@ -80,6 +85,8 @@ const [carregandoHistorico, setCarregandoHistorico] =
     }
 
     setCarregandoHistorico(true)
+
+    setIndiceHistoricoSelecionado(null)
 
     try {
       const historico =
@@ -194,6 +201,31 @@ const dataFimHistorico =
         ].data * 1000,
       ).toLocaleDateString('pt-BR')
     : ''
+
+    const pontoHistoricoSelecionado =
+  indiceHistoricoSelecionado != null
+    ? pontosHistorico[indiceHistoricoSelecionado]
+    : null
+
+const xHistoricoSelecionado =
+  indiceHistoricoSelecionado != null
+    ? margemGraficoAtivo +
+      (indiceHistoricoSelecionado /
+        divisorHistorico) *
+        (larguraGraficoAtivo -
+          margemGraficoAtivo * 2)
+    : null
+
+const yHistoricoSelecionado =
+  pontoHistoricoSelecionado
+    ? margemGraficoAtivo +
+      (1 -
+        (pontoHistoricoSelecionado.valor -
+          minimoHistorico) /
+          intervaloHistorico) *
+        (alturaGraficoAtivo -
+          margemGraficoAtivo * 2)
+    : null
 
   return (
     <main className="content">
@@ -385,10 +417,42 @@ const dataFimHistorico =
   ) : pontosHistorico.length > 1 ? (
     <div className="asset-history-chart">
   <svg
-    viewBox={`0 0 ${larguraGraficoAtivo} ${alturaGraficoAtivo}`}
-    role="img"
-    aria-label={`Histórico de ${ativoSelecionado?.ticker}`}
-  >
+  viewBox={`0 0 ${larguraGraficoAtivo} ${alturaGraficoAtivo}`}
+  role="img"
+  aria-label={`Histórico de ${ativoSelecionado?.ticker}`}
+  onMouseMove={(event) => {
+    if (pontosHistorico.length === 0) {
+      return
+    }
+
+    const rect =
+      event.currentTarget.getBoundingClientRect()
+
+    const posicaoX =
+      event.clientX - rect.left
+
+    const percentualX =
+      posicaoX / rect.width
+
+    const indice = Math.round(
+      percentualX *
+        (pontosHistorico.length - 1),
+    )
+
+    setIndiceHistoricoSelecionado(
+      Math.max(
+        0,
+        Math.min(
+          pontosHistorico.length - 1,
+          indice,
+        ),
+      ),
+    )
+  }}
+  onMouseLeave={() =>
+    setIndiceHistoricoSelecionado(null)
+  }
+>
     <polyline
       points={pontosLinhaHistorico}
       fill="none"
@@ -397,7 +461,78 @@ const dataFimHistorico =
       strokeLinecap="round"
       strokeLinejoin="round"
     />
+
+{xHistoricoSelecionado != null &&
+  yHistoricoSelecionado != null && (
+    <>
+      <line
+        x1={xHistoricoSelecionado}
+        x2={xHistoricoSelecionado}
+        y1={margemGraficoAtivo}
+        y2={
+          alturaGraficoAtivo -
+          margemGraficoAtivo
+        }
+        className="asset-history-guide"
+      />
+
+      <circle
+        cx={xHistoricoSelecionado}
+        cy={yHistoricoSelecionado}
+        r="5"
+        className="asset-history-point"
+      />
+    </>
+  )}
+
   </svg>
+
+  {pontoHistoricoSelecionado &&
+  xHistoricoSelecionado != null &&
+  yHistoricoSelecionado != null && (
+    <div
+      className="asset-history-tooltip"
+      style={{
+        left: `${Math.min(
+          88,
+          Math.max(
+            12,
+            (xHistoricoSelecionado /
+              larguraGraficoAtivo) *
+              100,
+          ),
+        )}%`,
+
+        top: `${Math.max(
+          12,
+          (yHistoricoSelecionado /
+            alturaGraficoAtivo) *
+            100,
+        )}%`,
+      }}
+    >
+      <strong>
+        {new Date(
+          pontoHistoricoSelecionado.data *
+            1000,
+        ).toLocaleDateString('pt-BR')}
+      </strong>
+
+      <div>
+        <span>Cotação</span>
+
+        <b>
+          {pontoHistoricoSelecionado.valor.toLocaleString(
+            'pt-BR',
+            {
+              style: 'currency',
+              currency: 'BRL',
+            },
+          )}
+        </b>
+      </div>
+    </div>
+  )}
 
   <div className="asset-history-dates">
     <span>{dataInicioHistorico}</span>
