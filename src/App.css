@@ -3201,3 +3201,61 @@ overflow: hidden;
   text-align: center;
   font-size: 12px;
 }
+
+.asset-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(5px);
+}
+
+.asset-detail-modal {
+  position: relative;
+
+  width: min(760px, 100%);
+  max-height: calc(100vh - 48px);
+  margin: 0;
+
+  overflow-y: auto;
+
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.asset-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #213246;
+  border-radius: 9px;
+
+  background: #0a131e;
+  color: #8396a9;
+
+  font-size: 23px;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.asset-modal-close:hover {
+  color: #f4f7fa;
+  border-color: #35516c;
+}
