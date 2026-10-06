@@ -3,7 +3,10 @@ import { Search } from 'lucide-react'
 
 import {
   buscarAtivos,
+  listarAtivosMercado,
   type AtivoBusca,
+  type AtivoMercado,
+  type FiltroTipoAtivo,
 } from '../services/ativos'
 
 import {
@@ -19,6 +22,18 @@ function Ativos() {
     useState<AtivoBusca[]>([])
   const [buscando, setBuscando] =
     useState(false)
+
+    const [ativosMercado, setAtivosMercado] =
+  useState<AtivoMercado[]>([])
+
+const [totalAtivosMercado, setTotalAtivosMercado] =
+  useState(0)
+
+const [tipoSelecionado, setTipoSelecionado] =
+  useState<FiltroTipoAtivo>('acoes')
+
+const [carregandoMercado, setCarregandoMercado] =
+  useState(false)
 
     const [ativoSelecionado, setAtivoSelecionado] =
   useState<AtivoBusca | null>(null)
@@ -42,6 +57,44 @@ const [carregandoHistorico, setCarregandoHistorico] =
   indiceHistoricoSelecionado,
   setIndiceHistoricoSelecionado,
 ] = useState<number | null>(null)
+
+useEffect(() => {
+  const timer = window.setTimeout(
+    async () => {
+      setCarregandoMercado(true)
+
+      try {
+        const resposta =
+          await listarAtivosMercado(
+            tipoSelecionado,
+            busca,
+            1,
+          )
+
+        setAtivosMercado(resposta.ativos)
+
+        setTotalAtivosMercado(
+          resposta.total,
+        )
+      } catch (erro) {
+        console.error(
+          'Erro ao carregar mercado:',
+          erro,
+        )
+
+        setAtivosMercado([])
+        setTotalAtivosMercado(0)
+      } finally {
+        setCarregandoMercado(false)
+      }
+    },
+    300,
+  )
+
+  return () => {
+    window.clearTimeout(timer)
+  }
+}, [tipoSelecionado, busca])
 
   useEffect(() => {
     const termo = busca.trim()
@@ -227,100 +280,214 @@ const yHistoricoSelecionado =
           margemGraficoAtivo * 2)
     : null
 
+    const abasMercado: {
+  valor: FiltroTipoAtivo
+  nome: string
+}[] = [
+  { valor: 'todos', nome: 'Todos' },
+  { valor: 'acoes', nome: 'Ações' },
+  { valor: 'fiis', nome: 'FIIs' },
+  { valor: 'bdrs', nome: 'BDRs' },
+  { valor: 'etfs', nome: 'ETFs' },
+]
+
+function formatarValorMercado(
+  valor: number | null,
+) {
+  if (valor == null) {
+    return '—'
+  }
+
+  if (valor >= 1_000_000_000_000) {
+    return `R$ ${(valor / 1_000_000_000_000)
+      .toFixed(1)
+      .replace('.', ',')} tri`
+  }
+
+  if (valor >= 1_000_000_000) {
+    return `R$ ${(valor / 1_000_000_000)
+      .toFixed(1)
+      .replace('.', ',')} bi`
+  }
+
+  if (valor >= 1_000_000) {
+    return `R$ ${(valor / 1_000_000)
+      .toFixed(1)
+      .replace('.', ',')} mi`
+  }
+
+  return valor.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  })
+}
+
   return (
     <main className="content">
-      <p className="eyebrow">MERCADO</p>
+      <div className="market-page-header">
+  <p className="eyebrow">ATIVOS</p>
 
-      <h1>Ativos</h1>
+  <h1>Explore o mercado</h1>
 
-      <p className="subtitle">
-        Pesquise ações e BDRs negociados na B3.
-      </p>
+  <p className="subtitle">
+    Pesquise ativos, compare indicadores e
+    encontre oportunidades para analisar.
+  </p>
+</div>
 
-      <section className="assets-search-panel">
-        <div className="assets-search-input">
-          <Search size={18} />
+<section className="market-explorer">
+  <div className="market-search">
+    <Search size={20} />
 
-          <input
-            type="text"
-            placeholder="Busque por ticker ou empresa..."
-            value={busca}
-            onChange={(event) =>
-              setBusca(event.target.value)
-            }
-          />
-        </div>
+    <input
+      type="text"
+      value={busca}
+      placeholder="Busque por ticker ou nome da empresa..."
+      onChange={(event) =>
+        setBusca(event.target.value)
+      }
+    />
+  </div>
 
-        {buscando && (
-          <p className="assets-search-message">
-            Buscando ativos...
-          </p>
-        )}
+  <div className="market-toolbar">
+    <div className="market-tabs">
+      {abasMercado.map((aba) => (
+        <button
+          type="button"
+          key={aba.valor}
+          className={
+            tipoSelecionado === aba.valor
+              ? 'active'
+              : ''
+          }
+          onClick={() =>
+            setTipoSelecionado(aba.valor)
+          }
+        >
+          {aba.nome}
+        </button>
+      ))}
+    </div>
 
-        {!buscando &&
-          resultados.length > 0 && (
-            <div className="assets-search-results">
-              {resultados.map((ativo) => (
-                <button
-  type="button"
-  className="assets-search-result"
-  key={ativo.ticker}
-  onClick={() => selecionarAtivo(ativo)}
->
-                  <div className="asset-symbol">
-                    <img
-                      src={`https://icons.brapi.dev/icons/${ativo.ticker.toUpperCase()}.svg`}
-                      alt={ativo.ticker}
-                      className="asset-symbol-logo"
-                      onError={(event) => {
-                        event.currentTarget.style.display =
-                          'none'
+    <button
+      type="button"
+      className="market-filter-button"
+    >
+      Filtros
+    </button>
+  </div>
 
-                        const fallback =
-                          event.currentTarget
-                            .nextElementSibling as HTMLElement | null
+  <div className="market-results-header">
+    <span>
+      {carregandoMercado
+        ? 'Carregando ativos...'
+        : `${totalAtivosMercado} ativos encontrados`}
+    </span>
 
-                        if (fallback) {
-                          fallback.style.display =
-                            'flex'
-                        }
-                      }}
-                    />
+    <small>
+      Ordenado por valor de mercado
+    </small>
+  </div>
 
-                    <span
-                      className="asset-symbol-fallback"
-                      style={{
-                        display: 'none',
-                      }}
-                    >
-                      {ativo.ticker.slice(0, 4)}
-                    </span>
-                  </div>
+  <div className="market-table">
+    <div className="market-table-head">
+      <span>ATIVO</span>
+      <span>PREÇO</span>
+      <span>VARIAÇÃO</span>
+      <span>P/L</span>
+      <span>P/VP</span>
+      <span>DY</span>
+      <span>ROE</span>
+      <span>VALOR MERCADO</span>
+    </div>
 
-                  <div>
-                    <strong>
-                      {ativo.ticker}
-                    </strong>
-
-                    <span>
-                      {ativo.nome}
-                    </span>
-                  </div>
-                </button>
-              ))}
+    {carregandoMercado ? (
+      <div className="market-table-empty">
+        Carregando mercado...
+      </div>
+    ) : ativosMercado.length === 0 ? (
+      <div className="market-table-empty">
+        Nenhum ativo encontrado.
+      </div>
+    ) : (
+      ativosMercado.map((ativo) => (
+        <button
+          type="button"
+          className="market-table-row"
+          key={ativo.ticker}
+          onClick={() =>
+            selecionarAtivo({
+              ticker: ativo.ticker,
+              nome: ativo.nome,
+              tipo:
+                ativo.tipo ?? undefined,
+            })
+          }
+        >
+          <div className="market-asset">
+            <div className="market-asset-logo">
+              <img
+                src={
+                  ativo.logoUrl ??
+                  `https://icons.brapi.dev/icons/${ativo.ticker}.svg`
+                }
+                alt={ativo.ticker}
+                onError={(event) => {
+                  event.currentTarget.style.display =
+                    'none'
+                }}
+              />
             </div>
-          )}
 
-        {!buscando &&
-  busca.trim() &&
-  resultados.length === 0 &&
-  !ativoSelecionado && (
-    <p className="assets-search-message">
-      Nenhum ativo encontrado.
-    </p>
-  )}
+            <div>
+              <strong>{ativo.ticker}</strong>
+              <span>{ativo.nome}</span>
+            </div>
+          </div>
 
-      </section>
+          <strong>
+            {ativo.preco != null
+              ? ativo.preco.toLocaleString(
+                  'pt-BR',
+                  {
+                    style: 'currency',
+                    currency: 'BRL',
+                  },
+                )
+              : '—'}
+          </strong>
+
+          <strong
+            className={
+              ativo.variacao == null
+                ? ''
+                : ativo.variacao >= 0
+                  ? 'positive-text'
+                  : 'negative-text'
+            }
+          >
+            {ativo.variacao == null
+              ? '—'
+              : `${ativo.variacao >= 0 ? '↗ +' : '↘ '}${ativo.variacao
+                  .toFixed(2)
+                  .replace('.', ',')}%`}
+          </strong>
+
+          <span>—</span>
+          <span>—</span>
+          <span>—</span>
+          <span>—</span>
+
+          <span>
+            {formatarValorMercado(
+              ativo.valorMercado,
+            )}
+          </span>
+        </button>
+      ))
+    )}
+  </div>
+</section>
 
 {ativoSelecionado && (
   <section className="asset-detail-card">
