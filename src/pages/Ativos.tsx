@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Search } from 'lucide-react'
 
 import {
-  buscarAtivos,
   listarAtivosMercado,
   type AtivoBusca,
   type AtivoMercado,
@@ -18,10 +17,6 @@ import {
 
 function Ativos() {
   const [busca, setBusca] = useState('')
-  const [resultados, setResultados] =
-    useState<AtivoBusca[]>([])
-  const [buscando, setBuscando] =
-    useState(false)
 
     const [ativosMercado, setAtivosMercado] =
   useState<AtivoMercado[]>([])
@@ -96,39 +91,7 @@ useEffect(() => {
   }
 }, [tipoSelecionado, busca])
 
-  useEffect(() => {
-    const termo = busca.trim()
-
-    if (
-  ativoSelecionado &&
-  termo.toUpperCase() ===
-    ativoSelecionado.ticker.toUpperCase()
-) {
-  setResultados([])
-  setBuscando(false)
-  return
-}
-
-    if (!termo) {
-      setResultados([])
-      setBuscando(false)
-      return
-    }
-
-    const timer = setTimeout(async () => {
-      setBuscando(true)
-
-      const ativos =
-        await buscarAtivos(termo)
-
-      setResultados(ativos)
-      setBuscando(false)
-    }, 300)
-
-    
-
-    return () => clearTimeout(timer)
-  }, [busca, ativoSelecionado])
+  
 
   useEffect(() => {
   async function carregarHistorico() {
@@ -170,7 +133,6 @@ useEffect(() => {
   )
 
   setCarregandoCotacao(false)
-  setResultados([])
   setBusca(ativo.ticker)
 }
 
