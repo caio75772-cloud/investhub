@@ -2963,3 +2963,11 @@ overflow: hidden;
   color: #00d6a3;
   font-size: 11px;
 }
+
+.asset-detail-data strong.positive-text {
+  color: #00d6a3;
+}
+
+.asset-detail-data strong.negative-text {
+  color: #ef6262;
+}
