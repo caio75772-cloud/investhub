@@ -133,7 +133,7 @@ useEffect(() => {
   )
 
   setCarregandoCotacao(false)
-  setBusca(ativo.ticker)
+  
 }
 
 const pontosHistorico =
@@ -452,7 +452,30 @@ function formatarValorMercado(
 </section>
 
 {ativoSelecionado && (
-  <section className="asset-detail-card">
+  <div
+    className="asset-modal-backdrop"
+    onClick={() =>
+      setAtivoSelecionado(null)
+    }
+  >
+    <section
+      className="asset-detail-card asset-detail-modal"
+      onClick={(event) =>
+        event.stopPropagation()
+      }
+    >
+
+<button
+  type="button"
+  className="asset-modal-close"
+  onClick={() =>
+    setAtivoSelecionado(null)
+  }
+  aria-label="Fechar"
+>
+  ×
+</button>
+
     <div className="asset-detail-header">
       <div className="asset-symbol asset-detail-logo">
         <img
@@ -676,6 +699,9 @@ function formatarValorMercado(
 </div>
     
   </section>
+
+</div>
+
 )}
 
     </main>
