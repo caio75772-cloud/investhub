@@ -284,6 +284,32 @@ function formatarValorMercado(
   })
 }
 
+const ativoMercadoSelecionado =
+  ativoSelecionado
+    ? ativosMercado.find(
+        (ativo) =>
+          ativo.ticker ===
+          ativoSelecionado.ticker,
+      ) ?? null
+    : null
+
+function obterRotuloTipo(
+  ativo: AtivoMercado | null,
+) {
+  const tipo = `${ativo?.tipo ?? ''} ${
+    ativo?.subtipo ?? ''
+  }`.toLowerCase()
+
+  if (tipo.includes('bdr')) return 'BDR'
+  if (tipo.includes('fii')) return 'FII'
+  if (tipo.includes('etf')) return 'ETF'
+
+  return 'Ação'
+}
+
+const rotuloTipoSelecionado =
+  obterRotuloTipo(ativoMercadoSelecionado)
+
   return (
     <main className="content">
       <div className="market-page-header">
@@ -476,65 +502,69 @@ function formatarValorMercado(
   ×
 </button>
 
-    <div className="asset-detail-header">
-      <div className="asset-symbol asset-detail-logo">
-        <img
-          src={`https://icons.brapi.dev/icons/${ativoSelecionado.ticker.toUpperCase()}.svg`}
-          alt={ativoSelecionado.ticker}
-          className="asset-symbol-logo"
-        />
-      </div>
-
-      <div>
-        <h2>{ativoSelecionado.ticker}</h2>
-        <p>{ativoSelecionado.nome}</p>
-      </div>
+    <div className="asset-modal-header">
+  <div className="asset-modal-company">
+    <div className="asset-symbol asset-detail-logo">
+      <img
+        src={
+          ativoMercadoSelecionado?.logoUrl ??
+          `https://icons.brapi.dev/icons/${ativoSelecionado.ticker.toUpperCase()}.svg`
+        }
+        alt={ativoSelecionado.ticker}
+        className="asset-symbol-logo"
+      />
     </div>
 
-    {carregandoCotacao ? (
-      <p className="assets-search-message">
-        Carregando cotação...
-      </p>
-    ) : cotacaoSelecionada ? (
-      <div className="asset-detail-data">
-        <div>
-          <span>Cotação atual</span>
-          <strong>
-            {cotacaoSelecionada.preco.toLocaleString(
-              'pt-BR',
-              {
-                style: 'currency',
-                currency: 'BRL',
-              },
-            )}
-          </strong>
-        </div>
+    <div>
+      <h2>{ativoSelecionado.ticker}</h2>
+      <p>{ativoSelecionado.nome}</p>
+    </div>
+  </div>
+</div>
 
-        <div>
-          <span>Variação do dia</span>
+{carregandoCotacao ? (
+  <p className="assets-search-message">
+    Carregando cotação...
+  </p>
+) : cotacaoSelecionada ? (
+  <div className="asset-modal-quote">
+    <div>
+      <strong className="asset-modal-price">
+        {cotacaoSelecionada.preco.toLocaleString(
+          'pt-BR',
+          {
+            style: 'currency',
+            currency: 'BRL',
+          },
+        )}
+      </strong>
 
-          <strong
-            className={
-              cotacaoSelecionada.variacao >= 0
-                ? 'positive-text'
-                : 'negative-text'
-            }
-          >
-            {cotacaoSelecionada.variacao >= 0
-              ? '+'
-              : ''}
-            {cotacaoSelecionada.variacao
-              .toFixed(2)
-              .replace('.', ',')}
-            %
-          </strong>
-        </div>
-      </div>
-    ) : (
-      <p className="assets-search-message">
-        Cotação indisponível.
-      </p>
-    )}
+      <span
+        className={
+          cotacaoSelecionada.variacao >= 0
+            ? 'asset-modal-change positive-text'
+            : 'asset-modal-change negative-text'
+        }
+      >
+        {cotacaoSelecionada.variacao >= 0
+          ? '↗ +'
+          : '↘ '}
+        {cotacaoSelecionada.variacao
+          .toFixed(2)
+          .replace('.', ',')}
+        % hoje
+      </span>
+    </div>
+
+    <span className="asset-type-badge">
+      {rotuloTipoSelecionado}
+    </span>
+  </div>
+) : (
+  <p className="assets-search-message">
+    Cotação indisponível.
+  </p>
+)}
 
 <div className="asset-history">
   <div className="asset-history-header">

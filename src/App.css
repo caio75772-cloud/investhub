@@ -3259,3 +3259,72 @@ overflow: hidden;
   color: #f4f7fa;
   border-color: #35516c;
 }
+
+.asset-modal-header {
+  padding-right: 48px;
+}
+
+.asset-modal-company {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.asset-modal-company h2 {
+  margin: 0;
+  color: #f4f7fa;
+  font-size: 17px;
+}
+
+.asset-modal-company p {
+  margin: 4px 0 0;
+  color: #71869b;
+  font-size: 10px;
+}
+
+.asset-modal-quote {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  margin-top: 22px;
+  padding-top: 20px;
+
+  border-top: 1px solid #1a2a39;
+}
+
+.asset-modal-quote > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.asset-modal-price {
+  color: #f4f7fa;
+  font-size: 30px;
+  line-height: 1.05;
+}
+
+.asset-modal-change {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.asset-type-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 28px;
+  padding: 0 12px;
+
+  border: 1px solid #33455a;
+  border-radius: 999px;
+
+  background: #111b27;
+  color: #9eb1c5;
+
+  font-size: 10px;
+  font-weight: 700;
+}
