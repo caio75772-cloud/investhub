@@ -3415,3 +3415,45 @@ overflow: hidden;
     font-size: 16px;
   }
 }
+
+/* Cabeçalho compacto do modal de ativo */
+
+.asset-detail-modal {
+  position: relative;
+}
+
+.asset-modal-header {
+  display: block;
+  margin: 0 0 18px;
+  padding: 0 44px 16px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.asset-modal-title {
+  min-width: 0;
+}
+
+.asset-modal-title h2 {
+  margin: 0;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #f8fafc;
+}
+
+.asset-modal-title p {
+  margin: 5px 0 0;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #94a3b8;
+}
+
+.asset-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 5;
+}
