@@ -3328,3 +3328,90 @@ overflow: hidden;
   font-size: 10px;
   font-weight: 700;
 }
+
+/* =========================================
+   FUNDAMENTOS - MODAL DE ATIVOS
+   ========================================= */
+
+.asset-fundamentals {
+  margin-top: 22px;
+  padding-top: 4px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.asset-fundamentals h3 {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.asset-fundamentals-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.asset-fundamental-item {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.55);
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.asset-fundamental-item:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(15, 23, 42, 0.8);
+  transform: translateY(-1px);
+}
+
+.asset-fundamental-item span {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #94a3b8;
+}
+
+.asset-fundamental-item strong {
+  display: block;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #f8fafc;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .asset-fundamentals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Celular */
+@media (max-width: 480px) {
+  .asset-fundamentals {
+    margin-top: 18px;
+    padding-bottom: 20px;
+  }
+
+  .asset-fundamentals-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .asset-fundamental-item {
+    padding: 12px;
+  }
+
+  .asset-fundamental-item strong {
+    font-size: 16px;
+  }
+}
