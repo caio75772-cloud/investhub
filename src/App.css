@@ -3418,10 +3418,6 @@ overflow: hidden;
 
 /* Cabeçalho compacto do modal de ativo */
 
-.asset-detail-modal {
-  position: relative;
-}
-
 .asset-modal-header {
   display: block;
   margin: 0 0 18px;
