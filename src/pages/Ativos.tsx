@@ -15,6 +15,17 @@ import {
   type SerieHistorica,
 } from '../services/mercado'
 
+type FundamentosAtivo = {
+  disponivel: boolean
+  parcial?: boolean
+  motivo?: string
+  ticker?: string
+  pl: number | null
+  pvp: number | null
+  dy: number | null
+  roe: number | null
+}
+
 function Ativos() {
   const [busca, setBusca] = useState('')
 
@@ -52,6 +63,16 @@ const [carregandoHistorico, setCarregandoHistorico] =
   indiceHistoricoSelecionado,
   setIndiceHistoricoSelecionado,
 ] = useState<number | null>(null)
+
+const [
+  fundamentosSelecionados,
+  setFundamentosSelecionados,
+] = useState<FundamentosAtivo | null>(null)
+
+const [
+  carregandoFundamentos,
+  setCarregandoFundamentos,
+] = useState(false)
 
 useEffect(() => {
   const timer = window.setTimeout(
@@ -91,7 +112,53 @@ useEffect(() => {
   }
 }, [tipoSelecionado, busca])
 
-  
+  useEffect(() => {
+  let cancelado = false
+
+  async function carregarFundamentos() {
+    if (!ativoSelecionado?.ticker) {
+      setFundamentosSelecionados(null)
+      return
+    }
+
+    setCarregandoFundamentos(true)
+    setFundamentosSelecionados(null)
+
+    try {
+      const resposta = await fetch(
+        `/api/fundamentos?ticker=${encodeURIComponent(
+          ativoSelecionado.ticker,
+        )}`,
+      )
+
+      const dados =
+        (await resposta.json()) as FundamentosAtivo
+
+      if (!cancelado) {
+        setFundamentosSelecionados(dados)
+      }
+    } catch (erro) {
+      console.error(
+        'Erro ao carregar fundamentos:',
+        erro,
+      )
+
+      if (!cancelado) {
+        setFundamentosSelecionados(null)
+      }
+    } finally {
+      if (!cancelado) {
+        setCarregandoFundamentos(false)
+      }
+    }
+  }
+
+  carregarFundamentos()
+
+  return () => {
+    cancelado = true
+  }
+}, [ativoSelecionado?.ticker])
 
   useEffect(() => {
   async function carregarHistorico() {
@@ -537,6 +604,7 @@ const rotuloTipoSelecionado =
             currency: 'BRL',
           },
         )}
+
       </strong>
 
       <span
@@ -565,6 +633,80 @@ const rotuloTipoSelecionado =
     Cotação indisponível.
   </p>
 )}
+
+<div className="asset-fundamentals">
+  <h3>Fundamentos</h3>
+
+  {carregandoFundamentos ? (
+    <p className="asset-search-message">
+      Carregando fundamentos...
+    </p>
+  ) : fundamentosSelecionados?.disponivel ? (
+    <div className="asset-fundamentals-grid">
+      <div className="asset-fundamental-item">
+        <span>P/L</span>
+        <strong>
+          {fundamentosSelecionados.pl !== null
+            ? `${fundamentosSelecionados.pl.toLocaleString(
+                'pt-BR',
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                },
+              )}x`
+            : '—'}
+        </strong>
+      </div>
+
+      <div className="asset-fundamental-item">
+        <span>P/VP</span>
+        <strong>
+          {fundamentosSelecionados.pvp !== null
+            ? `${fundamentosSelecionados.pvp.toLocaleString(
+                'pt-BR',
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                },
+              )}x`
+            : '—'}
+        </strong>
+      </div>
+
+      <div className="asset-fundamental-item">
+        <span>Dividend Yield</span>
+        <strong>
+          {fundamentosSelecionados.dy !== null
+            ? `${(
+                fundamentosSelecionados.dy * 100
+              ).toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}%`
+            : '—'}
+        </strong>
+      </div>
+
+      <div className="asset-fundamental-item">
+        <span>ROE</span>
+        <strong>
+          {fundamentosSelecionados.roe !== null
+            ? `${(
+                fundamentosSelecionados.roe * 100
+              ).toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}%`
+            : '—'}
+        </strong>
+      </div>
+    </div>
+  ) : (
+    <p className="asset-search-message">
+      Fundamentos indisponíveis para este ativo.
+    </p>
+  )}
+</div>
 
 <div className="asset-history">
   <div className="asset-history-header">
