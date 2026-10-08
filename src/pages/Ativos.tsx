@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Search } from 'lucide-react'
 
 import {
@@ -31,6 +31,8 @@ function Ativos() {
 
     const [ativosMercado, setAtivosMercado] =
   useState<AtivoMercado[]>([])
+
+  const modalRef = useRef<HTMLElement | null>(null)
 
 const [totalAtivosMercado, setTotalAtivosMercado] =
   useState(0)
@@ -377,6 +379,24 @@ function obterRotuloTipo(
 const rotuloTipoSelecionado =
   obterRotuloTipo(ativoMercadoSelecionado)
 
+  useEffect(() => {
+  if (!ativoSelecionado) {
+    return
+  }
+
+  const frame = window.requestAnimationFrame(() => {
+    modalRef.current?.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'auto',
+    })
+  })
+
+  return () => {
+    window.cancelAnimationFrame(frame)
+  }
+}, [ativoSelecionado?.ticker])
+
   return (
     <main className="content">
       <div className="market-page-header">
@@ -552,6 +572,7 @@ const rotuloTipoSelecionado =
     }
   >
     <section
+    ref={modalRef}
       className="asset-detail-card asset-detail-modal"
       onClick={(event) =>
         event.stopPropagation()
