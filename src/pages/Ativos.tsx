@@ -570,22 +570,9 @@ const rotuloTipoSelecionado =
 </button>
 
     <div className="asset-modal-header">
-  <div className="asset-modal-company">
-    <div className="asset-symbol asset-detail-logo">
-      <img
-        src={
-          ativoMercadoSelecionado?.logoUrl ??
-          `https://icons.brapi.dev/icons/${ativoSelecionado.ticker.toUpperCase()}.svg`
-        }
-        alt={ativoSelecionado.ticker}
-        className="asset-symbol-logo"
-      />
-    </div>
-
-    <div>
-      <h2>{ativoSelecionado.ticker}</h2>
-      <p>{ativoSelecionado.nome}</p>
-    </div>
+  <div className="asset-modal-title">
+    <h2>{ativoSelecionado.ticker}</h2>
+    <p>{ativoSelecionado.nome}</p>
   </div>
 </div>
 
