@@ -3337,7 +3337,7 @@ overflow: hidden;
   margin-top: 22px;
   padding-top: 4px;
   padding-bottom: 24px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  border-bottom: none;
 }
 
 .asset-fundamentals h3 {
