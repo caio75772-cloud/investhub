@@ -3457,3 +3457,25 @@ overflow: hidden;
   right: 18px;
   z-index: 5;
 }
+
+/* Correção do título cortado no topo do modal */
+
+.asset-modal-header {
+  position: static;
+  top: auto;
+  transform: none;
+  overflow: visible;
+  padding-top: 12px;
+}
+
+.asset-modal-title {
+  position: static;
+  transform: none;
+  overflow: visible;
+}
+
+.asset-modal-title h2 {
+  position: static;
+  transform: none;
+  overflow: visible;
+}
