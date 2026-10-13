@@ -3359,15 +3359,23 @@ overflow: hidden;
 .asset-fundamentals-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .asset-fundamental-item {
   min-width: 0;
-  padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  border-radius: 12px;
-  background: rgba(15, 23, 42, 0.55);
+  min-height: 76px;
+  padding: 12px 11px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  border: 1px solid #1e2d3d;
+  border-radius: 14px;
+
+  background: #0c1624;
+
   transition:
     border-color 0.2s ease,
     background 0.2s ease,
@@ -3375,8 +3383,8 @@ overflow: hidden;
 }
 
 .asset-fundamental-item:hover {
-  border-color: rgba(16, 185, 129, 0.4);
-  background: rgba(15, 23, 42, 0.8);
+  border-color: #30465d;
+  background: #101c2c;
   transform: translateY(-1px);
 }
 
