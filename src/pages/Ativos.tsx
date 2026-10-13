@@ -28,6 +28,8 @@ type FundamentosAtivo = {
   valorMercado: number | null
 minima52: number | null
 maxima52: number | null
+
+setor: string | null
 }
 
 function Ativos() {
@@ -720,7 +722,16 @@ const rotuloTipoSelecionado =
   )}
 </div>
 
+
+
 <div className="asset-extra-info">
+  <div className="asset-extra-item">
+  <span>Setor</span>
+
+  <strong>
+    {fundamentosSelecionados?.setor ?? '—'}
+  </strong>
+</div>
   <div className="asset-extra-item">
     <span>Valor de mercado</span>
 
