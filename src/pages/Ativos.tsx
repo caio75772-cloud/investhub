@@ -682,7 +682,7 @@ const rotuloTipoSelecionado =
       </div>
 
       <div className="asset-fundamental-item">
-        <span>Dividend Yield</span>
+        <span>DIV. YIELD</span>
         <strong>
           {fundamentosSelecionados.dy !== null
             ? `${(
