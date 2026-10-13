@@ -720,6 +720,59 @@ const rotuloTipoSelecionado =
   )}
 </div>
 
+<div className="asset-extra-info">
+  <div className="asset-extra-item">
+    <span>Valor de mercado</span>
+
+    <strong>
+      {fundamentosSelecionados?.valorMercado !== null &&
+      fundamentosSelecionados?.valorMercado !== undefined
+        ? `R$ ${(
+            fundamentosSelecionados.valorMercado /
+            1_000_000_000
+          ).toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })} bi`
+        : '—'}
+    </strong>
+  </div>
+
+  <div className="asset-extra-item">
+    <span>Mínima 52s</span>
+
+    <strong>
+      {fundamentosSelecionados?.minima52 !== null &&
+      fundamentosSelecionados?.minima52 !== undefined
+        ? fundamentosSelecionados.minima52.toLocaleString(
+            'pt-BR',
+            {
+              style: 'currency',
+              currency: 'BRL',
+            },
+          )
+        : '—'}
+    </strong>
+  </div>
+
+  <div className="asset-extra-item">
+    <span>Máxima 52s</span>
+
+    <strong>
+      {fundamentosSelecionados?.maxima52 !== null &&
+      fundamentosSelecionados?.maxima52 !== undefined
+        ? fundamentosSelecionados.maxima52.toLocaleString(
+            'pt-BR',
+            {
+              style: 'currency',
+              currency: 'BRL',
+            },
+          )
+        : '—'}
+    </strong>
+  </div>
+</div>
+
 <div className="asset-history">
   <div className="asset-history-header">
     <div>
