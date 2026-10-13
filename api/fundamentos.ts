@@ -79,10 +79,17 @@ export default async function handler(
         tickerNormalizado,
       )}`
 
+      const urlCotacao =
+  `https://brapi.dev/api/v2/stocks/quote?symbols=${encodeURIComponent(
+    tickerNormalizado,
+  )}`
+
     const [
-      consultaEstatisticas,
-      consultaFinanceiro,
-    ] = await Promise.all([
+  consultaEstatisticas,
+  consultaFinanceiro,
+  consultaCotacao,
+] = await Promise.all([
+
       consultarBrapi(
         urlEstatisticas,
         token,
@@ -91,6 +98,11 @@ export default async function handler(
         urlFinanceiro,
         token,
       ),
+
+      consultarBrapi(
+  urlCotacao,
+  token,
+),
     ])
 
     const {
@@ -102,6 +114,11 @@ export default async function handler(
       resposta: respostaFinanceiro,
       dados: dadosFinanceiro,
     } = consultaFinanceiro
+
+    const {
+  resposta: respostaCotacao,
+  dados: dadosCotacao,
+} = consultaCotacao
 
     const estatisticasBloqueadas =
       respostaEstatisticas.status === 403 ||
@@ -131,11 +148,21 @@ export default async function handler(
             tickerNormalizado,
       ) ?? null
 
+      const ativoCotacao =
+  dadosCotacao?.results?.find(
+    (item: any) =>
+      item.symbol === tickerNormalizado ||
+      item.requestedSymbol === tickerNormalizado,
+  ) ?? null
+
     const estatisticas =
       ativoEstatisticas?.data ?? null
 
     const financeiro =
       ativoFinanceiro?.data ?? null
+
+      const cotacao =
+  ativoCotacao?.data ?? null
 
     const pl = numeroOuNull(
       estatisticas?.trailingPE,
@@ -152,6 +179,18 @@ export default async function handler(
     const roe = numeroOuNull(
       financeiro?.returnOnEquity,
     )
+
+    const valorMercado = numeroOuNull(
+  cotacao?.marketCap,
+)
+
+const minima52 = numeroOuNull(
+  cotacao?.fiftyTwoWeekLow,
+)
+
+const maxima52 = numeroOuNull(
+  cotacao?.fiftyTwoWeekHigh,
+)
 
     const possuiAlgumDado =
       pl !== null ||
@@ -194,15 +233,20 @@ export default async function handler(
       !respostaFinanceiro.ok
 
     return res.status(200).json({
-      disponivel: true,
-      parcial,
-      ticker: tickerNormalizado,
+  disponivel: true,
+  parcial,
+  ticker: tickerNormalizado,
 
-      pl,
-      pvp,
-      dy,
-      roe,
-    })
+  pl,
+  pvp,
+  dy,
+  roe,
+
+  valorMercado,
+  minima52,
+  maxima52,
+})
+
   } catch (erro) {
     console.error(
       'Erro ao consultar fundamentos:',
