@@ -84,10 +84,16 @@ export default async function handler(
     tickerNormalizado,
   )}`
 
+  const urlPerfil =
+  `https://brapi.dev/api/v2/stocks/profile?symbols=${encodeURIComponent(
+    tickerNormalizado,
+  )}`
+
     const [
   consultaEstatisticas,
   consultaFinanceiro,
   consultaCotacao,
+  consultaPerfil,
 ] = await Promise.all([
 
       consultarBrapi(
@@ -101,6 +107,11 @@ export default async function handler(
 
       consultarBrapi(
   urlCotacao,
+  token,
+),
+
+consultarBrapi(
+  urlPerfil,
   token,
 ),
     ])
@@ -119,6 +130,11 @@ export default async function handler(
   resposta: respostaCotacao,
   dados: dadosCotacao,
 } = consultaCotacao
+
+const {
+  resposta: respostaPerfil,
+  dados: dadosPerfil,
+} = consultaPerfil
 
     const estatisticasBloqueadas =
       respostaEstatisticas.status === 403 ||
@@ -155,6 +171,13 @@ export default async function handler(
       item.requestedSymbol === tickerNormalizado,
   ) ?? null
 
+  const ativoPerfil =
+  dadosPerfil?.results?.find(
+    (item: any) =>
+      item.symbol === tickerNormalizado ||
+      item.requestedSymbol === tickerNormalizado,
+  ) ?? null
+
     const estatisticas =
       ativoEstatisticas?.data ?? null
 
@@ -163,6 +186,16 @@ export default async function handler(
 
       const cotacao =
   ativoCotacao?.data ?? null
+
+  const perfil =
+  ativoPerfil?.data ?? null
+
+  const setor =
+  typeof perfil?.sectorDisp === 'string'
+    ? perfil.sectorDisp
+    : typeof perfil?.sector === 'string'
+      ? perfil.sector
+      : null
 
     const pl = numeroOuNull(
       estatisticas?.trailingPE,
@@ -245,6 +278,8 @@ const maxima52 = numeroOuNull(
   valorMercado,
   minima52,
   maxima52,
+
+  setor,
 })
 
   } catch (erro) {
