@@ -24,6 +24,10 @@ type FundamentosAtivo = {
   pvp: number | null
   dy: number | null
   roe: number | null
+
+  valorMercado: number | null
+minima52: number | null
+maxima52: number | null
 }
 
 function Ativos() {
