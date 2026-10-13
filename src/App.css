@@ -3220,7 +3220,7 @@ overflow: hidden;
 .asset-detail-modal {
   position: relative;
 
-  width: min(760px, 100%);
+  width: min(540px, calc(100% - 32px));
   max-height: calc(100vh - 48px);
   margin: 0;
 
