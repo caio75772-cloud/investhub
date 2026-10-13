@@ -3288,10 +3288,10 @@ overflow: hidden;
   justify-content: space-between;
   gap: 20px;
 
-  margin-top: 22px;
-  padding-top: 20px;
+  margin-top: 20px;
+  padding-top: 0;
 
-  border-top: 1px solid #1a2a39;
+  border-top: none;
 }
 
 .asset-modal-quote > div {
@@ -3301,14 +3301,20 @@ overflow: hidden;
 }
 
 .asset-modal-price {
+  display: block;
   color: #f4f7fa;
-  font-size: 30px;
+  font-size: 34px;
+  font-weight: 800;
   line-height: 1.05;
+  letter-spacing: -0.5px;
 }
 
 .asset-modal-change {
-  font-size: 12px;
+  display: block;
+  margin-top: 7px;
+  font-size: 14px;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .asset-type-badge {
