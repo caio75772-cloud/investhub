@@ -32,6 +32,37 @@ maxima52: number | null
 setor: string | null
 }
 
+function calcularVariacaoHistorica(
+  historico: SerieHistorica | null,
+) {
+  if (!historico || historico.pontos.length < 2) {
+    return null
+  }
+
+  const pontosValidos = historico.pontos.filter(
+    (ponto) =>
+      Number.isFinite(ponto.close) &&
+      ponto.close > 0,
+  )
+
+  if (pontosValidos.length < 2) {
+    return null
+  }
+
+  const primeiroPreco =
+    pontosValidos[0].close
+
+  const ultimoPreco =
+    pontosValidos[
+      pontosValidos.length - 1
+    ].close
+
+  return (
+    (ultimoPreco / primeiroPreco - 1) *
+    100
+  )
+}
+
 function Ativos() {
   const [busca, setBusca] = useState('')
 
@@ -63,6 +94,12 @@ const [carregandoCotacao, setCarregandoCotacao] =
 
 const [historicoAtivo, setHistoricoAtivo] =
   useState<SerieHistorica | null>(null)
+
+  const [variacaoMes, setVariacaoMes] =
+  useState<number | null>(null)
+
+const [variacaoAno, setVariacaoAno] =
+  useState<number | null>(null)
 
 const [carregandoHistorico, setCarregandoHistorico] =
   useState(false)
