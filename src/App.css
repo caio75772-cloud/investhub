@@ -3537,3 +3537,11 @@ overflow: hidden;
   color: #f4f7fa;
   text-align: right;
 }
+
+.asset-extra-item strong.positive-text {
+  color: #20e0b2;
+}
+
+.asset-extra-item strong.negative-text {
+  color: #ef4444;
+}
