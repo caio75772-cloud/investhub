@@ -3513,16 +3513,19 @@ overflow: hidden;
   border-top: 1px solid rgba(148, 163, 184, 0.14);
   border-bottom: 1px solid rgba(148, 163, 184, 0.14);
 
-  display: flex;
-  flex-direction: column;
-  gap: 11px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 24px;
+  row-gap: 12px;
 }
 
 .asset-extra-item {
+  min-width: 0;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 12px;
 }
 
 .asset-extra-item span {
@@ -3544,4 +3547,10 @@ overflow: hidden;
 
 .asset-extra-item strong.negative-text {
   color: #ef4444;
+}
+
+@media (max-width: 520px) {
+  .asset-extra-info {
+    grid-template-columns: 1fr;
+  }
 }
