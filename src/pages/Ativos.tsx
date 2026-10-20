@@ -32,33 +32,70 @@ maxima52: number | null
 setor: string | null
 }
 
-function calcularVariacaoHistorica(
+function calcularVariacaoCalendario(
   historico: SerieHistorica | null,
+  periodo: 'mes' | 'ano',
 ) {
   if (!historico || historico.pontos.length < 2) {
     return null
   }
 
-  const pontosValidos = historico.pontos.filter(
-    (ponto) =>
-      Number.isFinite(ponto.close) &&
-      ponto.close > 0,
-  )
+  const pontosValidos = historico.pontos
+    .filter(
+      (ponto) =>
+        Number.isFinite(ponto.close) &&
+        ponto.close > 0 &&
+        Number.isFinite(ponto.date),
+    )
+    .sort((a, b) => a.date - b.date)
 
   if (pontosValidos.length < 2) {
     return null
   }
 
-  const primeiroPreco =
-    pontosValidos[0].close
+  const ultimoPonto =
+    pontosValidos[pontosValidos.length - 1]
 
-  const ultimoPreco =
-    pontosValidos[
-      pontosValidos.length - 1
-    ].close
+  const timestampParaMs = (timestamp: number) =>
+    timestamp < 1_000_000_000_000
+      ? timestamp * 1000
+      : timestamp
+
+  const dataFinal = new Date(
+    timestampParaMs(ultimoPonto.date),
+  )
+
+  const inicioPeriodo =
+    periodo === 'mes'
+      ? Date.UTC(
+          dataFinal.getUTCFullYear(),
+          dataFinal.getUTCMonth(),
+          1,
+        )
+      : Date.UTC(
+          dataFinal.getUTCFullYear(),
+          0,
+          1,
+        )
+
+  const pontosAnteriores =
+    pontosValidos.filter(
+      (ponto) =>
+        timestampParaMs(ponto.date) <
+        inicioPeriodo,
+    )
+
+  if (pontosAnteriores.length === 0) {
+    return null
+  }
+
+  const pontoBase =
+    pontosAnteriores[
+      pontosAnteriores.length - 1
+    ]
 
   return (
-    (ultimoPreco / primeiroPreco - 1) *
+    (ultimoPonto.close / pontoBase.close - 1) *
     100
   )
 }
@@ -199,6 +236,67 @@ useEffect(() => {
   }
 
   carregarFundamentos()
+
+  return () => {
+    cancelado = true
+  }
+}, [ativoSelecionado?.ticker])
+
+useEffect(() => {
+  let cancelado = false
+
+  async function carregarVariacoes() {
+    if (!ativoSelecionado?.ticker) {
+      setVariacaoMes(null)
+      setVariacaoAno(null)
+      return
+    }
+
+    try {
+      const [historicoMes, historicoAno] =
+        await Promise.all([
+          buscarHistoricoAtivo(
+            ativoSelecionado.ticker,
+            '1mo',
+          ),
+
+          buscarHistoricoAtivo(
+            ativoSelecionado.ticker,
+            '1y',
+          ),
+        ])
+
+      if (cancelado) {
+        return
+      }
+
+      setVariacaoMes(
+  calcularVariacaoCalendario(
+    historicoMes,
+    'mes',
+  ),
+)
+
+setVariacaoAno(
+  calcularVariacaoCalendario(
+    historicoAno,
+    'ano',
+  ),
+)
+    } catch (erro) {
+      console.error(
+        'Erro ao carregar variações:',
+        erro,
+      )
+
+      if (!cancelado) {
+        setVariacaoMes(null)
+        setVariacaoAno(null)
+      }
+    }
+  }
+
+  carregarVariacoes()
 
   return () => {
     cancelado = true
@@ -819,6 +917,47 @@ const rotuloTipoSelecionado =
         : '—'}
     </strong>
   </div>
+
+<div className="asset-extra-item">
+  <span>Var. mês</span>
+
+  <strong
+    className={
+      variacaoMes !== null
+        ? variacaoMes >= 0
+          ? 'positive-text'
+          : 'negative-text'
+        : ''
+    }
+  >
+    {variacaoMes !== null
+      ? `${variacaoMes >= 0 ? '+' : ''}${variacaoMes
+          .toFixed(2)
+          .replace('.', ',')}%`
+      : '—'}
+  </strong>
+</div>
+
+<div className="asset-extra-item">
+  <span>Var. ano</span>
+
+  <strong
+    className={
+      variacaoAno !== null
+        ? variacaoAno >= 0
+          ? 'positive-text'
+          : 'negative-text'
+        : ''
+    }
+  >
+    {variacaoAno !== null
+      ? `${variacaoAno >= 0 ? '+' : ''}${variacaoAno
+          .toFixed(2)
+          .replace('.', ',')}%`
+      : '—'}
+  </strong>
+</div>
+
 </div>
 
 <div className="asset-history">
