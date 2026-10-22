@@ -89,32 +89,29 @@ export default async function handler(
     tickerNormalizado,
   )}`
 
-    const [
-  consultaEstatisticas,
-  consultaFinanceiro,
-  consultaCotacao,
-  consultaPerfil,
-] = await Promise.all([
+    const consultaEstatisticas =
+  await consultarBrapi(
+    urlEstatisticas,
+    token,
+  )
 
-      consultarBrapi(
-        urlEstatisticas,
-        token,
-      ),
-      consultarBrapi(
-        urlFinanceiro,
-        token,
-      ),
+const consultaFinanceiro =
+  await consultarBrapi(
+    urlFinanceiro,
+    token,
+  )
 
-      consultarBrapi(
-  urlCotacao,
-  token,
-),
+const consultaCotacao =
+  await consultarBrapi(
+    urlCotacao,
+    token,
+  )
 
-consultarBrapi(
-  urlPerfil,
-  token,
-),
-    ])
+const consultaPerfil =
+  await consultarBrapi(
+    urlPerfil,
+    token,
+  )
 
     const {
       resposta: respostaEstatisticas,
@@ -198,20 +195,25 @@ const {
       : null
 
     const pl = numeroOuNull(
-      estatisticas?.trailingPE,
-    )
+  estatisticas?.trailingPE ??
+    financeiro?.trailingPE,
+)
 
-    const pvp = numeroOuNull(
-      estatisticas?.priceToBook,
-    )
+const pvp = numeroOuNull(
+  estatisticas?.priceToBook ??
+    financeiro?.priceToBook,
+)
 
-    const dy = numeroOuNull(
-      estatisticas?.dividendYield,
-    )
+const dy = numeroOuNull(
+  estatisticas?.dividendYield ??
+    financeiro?.dividendYield,
+)
 
-    const roe = numeroOuNull(
-      financeiro?.returnOnEquity,
-    )
+const roe = numeroOuNull(
+  financeiro?.returnOnEquity ??
+    estatisticas?.returnOnEquity ??
+    cotacao?.returnOnEquity,
+)
 
     const valorMercado = numeroOuNull(
   cotacao?.marketCap,

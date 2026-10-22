@@ -126,6 +126,17 @@ const [cotacaoSelecionada, setCotacaoSelecionada] =
 const [carregandoCotacao, setCarregandoCotacao] =
   useState(false)
 
+  const [
+  etapaCarregamentoAtivo,
+  setEtapaCarregamentoAtivo,
+] = useState<
+  'parado' |
+  'cotacao' |
+  'fundamentos' |
+  'historico' |
+  'grafico'
+>('parado')
+
   const [periodoHistorico, setPeriodoHistorico] =
   useState<'1mo' | '3mo' | '6mo' | '1y'>('3mo')
 
@@ -195,6 +206,14 @@ useEffect(() => {
 }, [tipoSelecionado, busca])
 
   useEffect(() => {
+
+if (
+  etapaCarregamentoAtivo !== 'fundamentos' ||
+  !ativoSelecionado
+) {
+  return
+}
+
   let cancelado = false
 
   async function carregarFundamentos() {
@@ -228,11 +247,13 @@ useEffect(() => {
       if (!cancelado) {
         setFundamentosSelecionados(null)
       }
+
     } finally {
-      if (!cancelado) {
-        setCarregandoFundamentos(false)
-      }
-    }
+  if (!cancelado) {
+    setCarregandoFundamentos(false)
+    setEtapaCarregamentoAtivo('historico')
+  }
+}
   }
 
   carregarFundamentos()
@@ -240,9 +261,18 @@ useEffect(() => {
   return () => {
     cancelado = true
   }
-}, [ativoSelecionado?.ticker])
+}, [
+  ativoSelecionado,
+  etapaCarregamentoAtivo,
+])
 
 useEffect(() => {
+  if (
+  etapaCarregamentoAtivo !== 'historico'
+) {
+  return
+}
+
   let cancelado = false
 
   async function carregarVariacoes() {
@@ -253,18 +283,12 @@ useEffect(() => {
     }
 
     try {
-      const [historicoMes, historicoAno] =
-        await Promise.all([
-          buscarHistoricoAtivo(
-            ativoSelecionado.ticker,
-            '1mo',
-          ),
 
-          buscarHistoricoAtivo(
-            ativoSelecionado.ticker,
-            '1y',
-          ),
-        ])
+      const historicoAno =
+  await buscarHistoricoAtivo(
+    ativoSelecionado.ticker,
+    '1y',
+  )
 
       if (cancelado) {
         return
@@ -272,7 +296,7 @@ useEffect(() => {
 
       setVariacaoMes(
   calcularVariacaoCalendario(
-    historicoMes,
+    historicoAno,
     'mes',
   ),
 )
@@ -289,21 +313,32 @@ setVariacaoAno(
         erro,
       )
 
-      if (!cancelado) {
-        setVariacaoMes(null)
-        setVariacaoAno(null)
-      }
-    }
+        if (!cancelado) {
+    setVariacaoMes(null)
+    setVariacaoAno(null)
   }
+} finally {
+  if (!cancelado) {
+    setEtapaCarregamentoAtivo('grafico')
+  }
+}
+}
 
   carregarVariacoes()
 
   return () => {
     cancelado = true
   }
-}, [ativoSelecionado?.ticker])
+}, [
+  ativoSelecionado?.ticker,
+  etapaCarregamentoAtivo,
+])
 
   useEffect(() => {
+    if (etapaCarregamentoAtivo !== 'grafico') {
+  return
+}
+
   async function carregarHistorico() {
     if (!ativoSelecionado) {
       setHistoricoAtivo(null)
@@ -328,10 +363,15 @@ setVariacaoAno(
   }
 
   void carregarHistorico()
-}, [ativoSelecionado, periodoHistorico])
+}, [
+  ativoSelecionado,
+  periodoHistorico,
+  etapaCarregamentoAtivo,
+])
 
   async function selecionarAtivo(ativo: AtivoBusca) {
   setAtivoSelecionado(ativo)
+  setEtapaCarregamentoAtivo('cotacao')
   setCotacaoSelecionada(null)
   setCarregandoCotacao(true)
 
@@ -343,7 +383,9 @@ setVariacaoAno(
   )
 
   setCarregandoCotacao(false)
-  
+
+  setEtapaCarregamentoAtivo('fundamentos')
+
 }
 
 const pontosHistorico =
@@ -958,6 +1000,22 @@ const rotuloTipoSelecionado =
   </strong>
 </div>
 
+</div>
+
+<div className="asset-modal-actions">
+  <button
+    type="button"
+    className="asset-modal-secondary-button"
+  >
+    Ver análise
+  </button>
+
+  <button
+    type="button"
+    className="asset-modal-primary-button"
+  >
+    + Adicionar à carteira
+  </button>
 </div>
 
 <div className="asset-history">
